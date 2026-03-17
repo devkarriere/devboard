@@ -1,9 +1,6 @@
-import type { User } from "@/types";
-
-// Fester Benutzer für Stufe 1 – wird in Stufe 2 durch Supabase Auth ersetzt
-export const CURRENT_USER: User = {
-  id: "user-1",
-  name: "Max Mustermann",
-  email: "max@example.com",
-  role: "admin",
-};
+// Feste Spalten für jedes Board
+export const DEFAULT_COLUMNS = [
+  { title: "To Do", order: 0 },
+  { title: "In Progress", order: 1 },
+  { title: "Done", order: 2 },
+] as const;

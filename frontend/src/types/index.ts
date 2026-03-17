@@ -1,12 +1,7 @@
-// Rollen-Typen für die Benutzerverwaltung
-export type Role = "admin" | "user";
-
-// Benutzer-Typ
+// Benutzer-Typ (vereinfacht – kein Login, keine Rollen)
 export interface User {
   id: string;
   name: string;
-  email: string;
-  role: Role;
 }
 
 // Eine einzelne Task auf dem Kanban-Board
@@ -14,12 +9,11 @@ export interface Task {
   id: string;
   title: string;
   description: string;
-  assignedTo: string; // User-ID
+  assignedTo: string; // Name des Nutzers
   columnId: string;
-  order: number;
 }
 
-// Eine Spalte im Kanban-Board (z.B. "To Do", "In Progress")
+// Eine Spalte im Kanban-Board (fest: "To Do", "In Progress", "Done")
 export interface Column {
   id: string;
   title: string;
@@ -30,23 +24,6 @@ export interface Column {
 export interface Board {
   id: string;
   title: string;
-  ownerId: string; // User-ID
   columns: Column[];
   tasks: Task[];
-}
-
-// Ein Eintrag in der Änderungshistorie einer Task
-export interface TaskLog {
-  _id: string;
-  taskId: string;
-  boardId: string;
-  userId: string;
-  message: string;
-  createdAt: string;
-}
-
-// Gesamter App-State, der im LocalStorage gespeichert wird
-export interface KanbanData {
-  boards: Board[];
-  users: User[];
 }

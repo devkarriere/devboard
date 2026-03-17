@@ -1,45 +1,26 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CreateBoardDialog } from "@/components/board/CreateBoardDialog";
-import { getBoards, deleteBoard } from "@/lib/api";
+import { getBoards, deleteBoard } from "@/lib/storage";
 import type { Board } from "@/types";
 
 // Übersichtsseite: Zeigt alle Boards als Karten
 export function BoardsPage() {
-  const [boards, setBoards] = useState<Board[]>([]);
+  const [boards, setBoards] = useState<Board[]>(getBoards());
   const [showCreateDialog, setShowCreateDialog] = useState(false);
-  const [loading, setLoading] = useState(true);
 
-  // Boards aus Supabase laden
-  async function loadBoards() {
-    setLoading(true);
-    try {
-      const data = await getBoards();
-      setBoards(data);
-    } catch (err) {
-      console.error("Fehler beim Laden der Boards:", err);
-    } finally {
-      setLoading(false);
-    }
+  // Boards aus dem LocalStorage neu laden
+  function reload() {
+    setBoards(getBoards());
   }
-
-  useEffect(() => {
-    loadBoards();
-  }, []);
 
   // Board löschen
-  async function handleDelete(id: string) {
-    await deleteBoard(id);
-    loadBoards();
-  }
-
-  if (loading) {
-    return (
-      <div className="text-center py-12 text-muted-foreground">Boards werden geladen...</div>
-    );
+  function handleDelete(id: string) {
+    deleteBoard(id);
+    reload();
   }
 
   return (
@@ -92,7 +73,7 @@ export function BoardsPage() {
       <CreateBoardDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
-        onBoardCreated={loadBoards}
+        onBoardCreated={reload}
       />
     </div>
   );

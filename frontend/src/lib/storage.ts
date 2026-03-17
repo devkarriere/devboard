@@ -1,196 +1,122 @@
-import { supabase } from "./supabase";
-import type { Board, Column, Task } from "@/types";
+import type { Board, Task } from "@/types";
+
+// Key für den LocalStorage
+const STORAGE_KEY = "kanban-data";
+
+// Alle Boards aus dem LocalStorage laden
+function loadBoards(): Board[] {
+  const raw = localStorage.getItem(STORAGE_KEY);
+  if (!raw) return [];
+  try {
+    return JSON.parse(raw);
+  } catch {
+    return [];
+  }
+}
+
+// Alle Boards im LocalStorage speichern
+function saveBoards(boards: Board[]): void {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(boards));
+}
 
 // --- Boards ---
 
-// Alle Boards laden (RLS filtert automatisch nach Berechtigung)
-export async function getBoards(): Promise<Board[]> {
-  const { data: boards, error } = await supabase
-    .from("boards")
-    .select("*")
-    .order("created_at", { ascending: false });
-
-  if (error) {
-    console.error("Fehler beim Laden der Boards:", error.message);
-    return [];
-  }
-  if (!boards) return [];
-
-  // Für jedes Board die Spalten und Tasks nachladen
-  const fullBoards: Board[] = [];
-  for (const board of boards) {
-    const full = await getBoard(board.id);
-    if (full) fullBoards.push(full);
-  }
-  return fullBoards;
+// Alle Boards laden
+export function getBoards(): Board[] {
+  return loadBoards();
 }
 
-// Ein einzelnes Board mit Spalten und Tasks laden
-export async function getBoard(id: string): Promise<Board | undefined> {
-  const { data: board, error: boardError } = await supabase
-    .from("boards")
-    .select("*")
-    .eq("id", id)
-    .single();
+// Ein einzelnes Board laden
+export function getBoard(id: string): Board | undefined {
+  return loadBoards().find((b) => b.id === id);
+}
 
-  if (boardError || !board) return undefined;
-
-  // Spalten laden
-  const { data: columns } = await supabase
-    .from("columns")
-    .select("*")
-    .eq("board_id", id)
-    .order("order");
-
-  // Tasks laden (über die Spalten-IDs)
-  const columnIds = (columns ?? []).map((c) => c.id);
-  let tasks: Task[] = [];
-  if (columnIds.length > 0) {
-    const { data: taskData } = await supabase
-      .from("tasks")
-      .select("*")
-      .in("column_id", columnIds)
-      .order("order");
-    tasks = (taskData ?? []).map((t) => ({
-      id: t.id,
-      title: t.title,
-      description: t.description ?? "",
-      assignedTo: t.assigned_to ?? "",
-      columnId: t.column_id,
-      order: t.order,
-    }));
-  }
-
-  // Board-Mitglieder laden
-  const { data: members } = await supabase
-    .from("board_members")
-    .select("user_id")
-    .eq("board_id", id);
-
-  return {
-    id: board.id,
-    title: board.title,
-    ownerId: board.owner_id,
-    members: (members ?? []).map((m) => m.user_id),
-    columns: (columns ?? []).map((c) => ({
-      id: c.id,
-      title: c.title,
-      order: c.order,
-    })),
-    tasks,
+// Neues Board mit den drei festen Spalten erstellen
+export function createBoard(title: string): void {
+  const boards = loadBoards();
+  const newBoard: Board = {
+    id: crypto.randomUUID(),
+    title,
+    columns: [
+      { id: crypto.randomUUID(), title: "To Do", order: 0 },
+      { id: crypto.randomUUID(), title: "In Progress", order: 1 },
+      { id: crypto.randomUUID(), title: "Done", order: 2 },
+    ],
+    tasks: [],
   };
-}
-
-// Neues Board mit Standard-Spalten erstellen
-export async function createBoard(title: string, ownerId: string): Promise<void> {
-  // Board erstellen
-  const { data: board, error: boardError } = await supabase
-    .from("boards")
-    .insert({ title, owner_id: ownerId })
-    .select()
-    .single();
-
-  if (boardError || !board) throw boardError;
-
-  // Owner als Member hinzufügen
-  await supabase
-    .from("board_members")
-    .insert({ board_id: board.id, user_id: ownerId });
-
-  // Standard-Spalten erstellen
-  await supabase.from("columns").insert([
-    { board_id: board.id, title: "To Do", order: 0 },
-    { board_id: board.id, title: "In Progress", order: 1 },
-    { board_id: board.id, title: "Done", order: 2 },
-  ]);
+  boards.push(newBoard);
+  saveBoards(boards);
 }
 
 // Board löschen
-export async function deleteBoard(id: string): Promise<void> {
-  const { error } = await supabase.from("boards").delete().eq("id", id);
-  if (error) throw error;
-}
-
-// --- Mitglieder ---
-
-// Profil-Daten der Board-Mitglieder laden (für Dropdown-Auswahl)
-export async function getBoardMemberProfiles(
-  memberIds: string[]
-): Promise<{ id: string; name: string }[]> {
-  if (memberIds.length === 0) return [];
-  const { data, error } = await supabase
-    .from("profiles")
-    .select("id, name")
-    .in("id", memberIds);
-
-  if (error || !data) return [];
-  return data.map((p) => ({ id: p.id, name: p.name }));
-}
-
-// --- Spalten ---
-
-// Neue Spalte zu einem Board hinzufügen
-export async function addColumn(boardId: string, title: string, order: number): Promise<Column> {
-  const { data, error } = await supabase
-    .from("columns")
-    .insert({ board_id: boardId, title, order })
-    .select()
-    .single();
-
-  if (error || !data) throw error;
-  return { id: data.id, title: data.title, order: data.order };
-}
-
-// Spalte löschen (Tasks werden durch CASCADE automatisch gelöscht)
-export async function deleteColumn(columnId: string): Promise<void> {
-  const { error } = await supabase.from("columns").delete().eq("id", columnId);
-  if (error) throw error;
+export function deleteBoard(id: string): void {
+  const boards = loadBoards().filter((b) => b.id !== id);
+  saveBoards(boards);
 }
 
 // --- Tasks ---
 
 // Neue Task erstellen
-export async function addTask(
+export function addTask(
+  boardId: string,
   columnId: string,
   title: string,
   description: string,
-  assignedTo: string,
-  order: number
-): Promise<Task> {
-  const { data, error } = await supabase
-    .from("tasks")
-    .insert({
-      column_id: columnId,
-      title,
-      description,
-      assigned_to: assignedTo,
-      order,
-    })
-    .select()
-    .single();
+  assignedTo: string
+): Task {
+  const boards = loadBoards();
+  const board = boards.find((b) => b.id === boardId);
+  if (!board) throw new Error("Board nicht gefunden");
 
-  if (error || !data) throw error;
-  return {
-    id: data.id,
-    title: data.title,
-    description: data.description ?? "",
-    assignedTo: data.assigned_to ?? "",
-    columnId: data.column_id,
-    order: data.order,
+  const newTask: Task = {
+    id: crypto.randomUUID(),
+    title,
+    description,
+    assignedTo,
+    columnId,
   };
+  board.tasks.push(newTask);
+  saveBoards(boards);
+  return newTask;
 }
 
 // Task löschen
-export async function deleteTask(taskId: string): Promise<void> {
-  const { error } = await supabase.from("tasks").delete().eq("id", taskId);
-  if (error) throw error;
+export function deleteTask(boardId: string, taskId: string): void {
+  const boards = loadBoards();
+  const board = boards.find((b) => b.id === boardId);
+  if (!board) return;
+
+  board.tasks = board.tasks.filter((t) => t.id !== taskId);
+  saveBoards(boards);
 }
 
-// Task aktualisieren (Spalte, Reihenfolge, oder Inhalt ändern)
-export async function updateTask(
+// Task aktualisieren (Titel, Beschreibung)
+export function updateTask(
+  boardId: string,
   taskId: string,
-  updates: { column_id?: string; order?: number; title?: string; description?: string; assigned_to?: string }
-): Promise<void> {
-  const { error } = await supabase.from("tasks").update(updates).eq("id", taskId);
-  if (error) throw error;
+  updates: { title?: string; description?: string }
+): void {
+  const boards = loadBoards();
+  const board = boards.find((b) => b.id === boardId);
+  if (!board) return;
+
+  const task = board.tasks.find((t) => t.id === taskId);
+  if (!task) return;
+
+  if (updates.title !== undefined) task.title = updates.title;
+  if (updates.description !== undefined) task.description = updates.description;
+  saveBoards(boards);
+}
+
+// Task in eine andere Spalte verschieben
+export function moveTask(boardId: string, taskId: string, newColumnId: string): void {
+  const boards = loadBoards();
+  const board = boards.find((b) => b.id === boardId);
+  if (!board) return;
+
+  const task = board.tasks.find((t) => t.id === taskId);
+  if (!task) return;
+
+  task.columnId = newColumnId;
+  saveBoards(boards);
 }

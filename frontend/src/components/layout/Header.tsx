@@ -6,8 +6,6 @@ import { LayoutDashboard, UserCircle } from "lucide-react";
 export function Header() {
   const { user } = useAuth();
 
-  if (!user) return null;
-
   return (
     <header className="border-b border-[#00c4e0] bg-[#0a0a0a]">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4">

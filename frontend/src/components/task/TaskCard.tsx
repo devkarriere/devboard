@@ -1,6 +1,6 @@
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2, User } from "lucide-react";
+import { GripVertical, Trash2 } from "lucide-react";
 import type { Task } from "@/types";
 
 interface TaskCardProps {
@@ -9,7 +9,7 @@ interface TaskCardProps {
   onEdit?: (task: Task) => void;
 }
 
-// Einzelne Task-Karte – per Drag & Drop verschiebbar
+// Einzelne Task-Karte – per Drag & Drop zwischen Spalten verschiebbar
 export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
   const {
     attributes,
@@ -56,11 +56,6 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
               {task.description}
             </p>
           )}
-          {/* Zugewiesene Person */}
-          <div className="flex items-center gap-1 mt-2 text-xs text-muted-foreground">
-            <User className="h-3 w-3" />
-            <span>{task.assignedTo}</span>
-          </div>
         </div>
 
         {/* Löschen-Button */}

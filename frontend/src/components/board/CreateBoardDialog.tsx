@@ -9,8 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useAuth } from "@/context/AuthContext";
-import { createBoard } from "@/lib/api";
+import { createBoard } from "@/lib/storage";
 
 interface CreateBoardDialogProps {
   open: boolean;
@@ -24,17 +23,13 @@ export function CreateBoardDialog({
   onOpenChange,
   onBoardCreated,
 }: CreateBoardDialogProps) {
-  const { user } = useAuth();
   const [title, setTitle] = useState("");
-  const [loading, setLoading] = useState(false);
 
-  async function handleSubmit(e: React.FormEvent) {
+  function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() || !user) return;
+    if (!title.trim()) return;
 
-    setLoading(true);
-    await createBoard(title.trim());
-    setLoading(false);
+    createBoard(title.trim());
     setTitle("");
     onOpenChange(false);
     onBoardCreated();
@@ -47,7 +42,7 @@ export function CreateBoardDialog({
           <DialogTitle>Neues Board erstellen</DialogTitle>
           <DialogDescription>
             Gib dem Board einen Namen. Es werden automatisch drei Spalten
-            angelegt.
+            angelegt (To Do, In Progress, Done).
           </DialogDescription>
         </DialogHeader>
         <form onSubmit={handleSubmit}>
@@ -63,8 +58,8 @@ export function CreateBoardDialog({
             <Button type="button" variant="outline" onClick={() => onOpenChange(false)}>
               Abbrechen
             </Button>
-            <Button type="submit" disabled={!title.trim() || loading}>
-              {loading ? "Erstellen..." : "Erstellen"}
+            <Button type="submit" disabled={!title.trim()}>
+              Erstellen
             </Button>
           </DialogFooter>
         </form>
