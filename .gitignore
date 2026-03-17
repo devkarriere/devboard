@@ -25,4 +25,5 @@ dist-ssr
 
 .env
 
-*.sql
+task.md
+**/*.sql
