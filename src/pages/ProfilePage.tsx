@@ -1,20 +1,25 @@
 import { useState } from "react";
-import { useAuth } from "@/context/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import {
+  Card,
+  CardHeader,
+  CardTitle,
+  CardDescription,
+  CardContent,
+} from "@/components/ui/card";
+import { getUserName } from "../lib/storage";
 
 // Profilseite: Hier kann der Benutzername geändert werden
 export function ProfilePage() {
-  const { user, updateUser } = useAuth();
-  const [name, setName] = useState(user.name);
+  const [name, setName] = useState(getUserName());
   const [saved, setSaved] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
 
-    updateUser({ name: name.trim() });
+    localStorage.setItem("kanban-user-name", name.trim());
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }
@@ -42,7 +47,7 @@ export function ProfilePage() {
               />
             </div>
             <div className="flex items-center gap-3">
-              <Button type="submit" disabled={!name.trim() || name.trim() === user.name}>
+              <Button type="submit" disabled={!name.trim()}>
                 Speichern
               </Button>
               {saved && (

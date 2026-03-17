@@ -1,10 +1,9 @@
-import { useAuth } from "@/context/AuthContext";
 import { Link } from "react-router-dom";
 import { LayoutDashboard, UserCircle } from "lucide-react";
 
 // Header-Leiste mit Navigation und Benutzeranzeige
 export function Header() {
-  const { user } = useAuth();
+  const userName = localStorage.getItem("kanban-user-name") || "Nutzer";
 
   return (
     <header className="border-b border-[#00c4e0] bg-[#0a0a0a]">
@@ -21,7 +20,7 @@ export function Header() {
           className="flex items-center gap-2 text-sm text-gray-400 hover:text-primary transition-colors"
         >
           <UserCircle className="h-5 w-5" />
-          <span className="font-medium text-gray-200">{user.name}</span>
+          <span className="font-medium text-gray-200">{userName}</span>
         </Link>
       </div>
     </header>

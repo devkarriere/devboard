@@ -3,6 +3,10 @@ import type { Board, Task } from "@/types";
 // Key für den LocalStorage
 const STORAGE_KEY = "kanban-data";
 
+export function getUserName() {
+  return localStorage.getItem("kanban-user-name") || "Nutzer";
+}
+
 // Alle Boards aus dem LocalStorage laden
 function loadBoards(): Board[] {
   const raw = localStorage.getItem(STORAGE_KEY);
@@ -62,7 +66,7 @@ export function addTask(
   columnId: string,
   title: string,
   description: string,
-  assignedTo: string
+  assignedTo: string,
 ): Task {
   const boards = loadBoards();
   const board = boards.find((b) => b.id === boardId);
@@ -94,7 +98,7 @@ export function deleteTask(boardId: string, taskId: string): void {
 export function updateTask(
   boardId: string,
   taskId: string,
-  updates: { title?: string; description?: string }
+  updates: { title?: string; description?: string },
 ): void {
   const boards = loadBoards();
   const board = boards.find((b) => b.id === boardId);
@@ -109,7 +113,11 @@ export function updateTask(
 }
 
 // Task in eine andere Spalte verschieben
-export function moveTask(boardId: string, taskId: string, newColumnId: string): void {
+export function moveTask(
+  boardId: string,
+  taskId: string,
+  newColumnId: string,
+): void {
   const boards = loadBoards();
   const board = boards.find((b) => b.id === boardId);
   if (!board) return;

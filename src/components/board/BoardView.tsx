@@ -13,7 +13,6 @@ import { ColumnComponent } from "./ColumnComponent";
 import { TaskCard } from "@/components/task/TaskCard";
 import { EditTaskDialog } from "@/components/task/EditTaskDialog";
 import { addTask, deleteTask, updateTask, moveTask } from "@/lib/storage";
-import { useAuth } from "@/context/AuthContext";
 import type { Board, Task } from "@/types";
 
 interface BoardViewProps {
@@ -23,7 +22,6 @@ interface BoardViewProps {
 
 // Kanban-Board-Ansicht mit Drag & Drop für Tasks zwischen Spalten
 export function BoardView({ board, onBoardChange }: BoardViewProps) {
-  const { user } = useAuth();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
@@ -37,7 +35,8 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
 
   // Neue Task erstellen (automatisch dem Nutzer zugewiesen)
   function handleAddTask(columnId: string, title: string, description: string) {
-    addTask(board.id, columnId, title, description, user.name);
+    const userName = localStorage.getItem("kanban-user-name") || "Nutzer";
+    addTask(board.id, columnId, title, description, userName);
     onBoardChange();
   }
 
