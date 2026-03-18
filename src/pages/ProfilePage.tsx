@@ -8,18 +8,19 @@ import {
   CardDescription,
   CardContent,
 } from "@/components/ui/card";
-import { getUserName } from "../lib/storage";
+import { useUserName } from "@/context/UserNameContext";
 
 // Profilseite: Hier kann der Benutzername geändert werden
 export function ProfilePage() {
-  const [name, setName] = useState(getUserName());
+  const { userName, setUserName } = useUserName();
+  const [name, setName] = useState(userName);
   const [saved, setSaved] = useState(false);
 
   function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     if (!name.trim()) return;
 
-    localStorage.setItem("kanban-user-name", name.trim());
+    setUserName(name.trim());
     setSaved(true);
     setTimeout(() => setSaved(false), 2000);
   }

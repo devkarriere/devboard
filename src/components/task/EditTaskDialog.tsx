@@ -16,7 +16,8 @@ interface EditTaskDialogProps {
   task: Task | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSave: (taskId: string, title: string, description: string) => void;
+  userName: string;
+  onSave: (taskId: string, title: string, description: string, assignedTo: string, deadline?: string) => void;
 }
 
 // Dialog zum Bearbeiten einer bestehenden Task
@@ -25,15 +26,20 @@ export function EditTaskDialog({
   open,
   onOpenChange,
   onSave,
+  userName,
 }: EditTaskDialogProps) {
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
+  const [deadline, setDeadline] = useState("");
+  const [assignedTo, setAssignedTo] = useState("");
 
   // Felder mit den aktuellen Task-Daten befüllen, wenn der Dialog geöffnet wird
   useEffect(() => {
     if (task && open) {
       setTitle(task.title);
       setDescription(task.description);
+      setDeadline(task.deadline ?? "");
+      setAssignedTo(task.assignedTo ?? "");
     }
   }, [task, open]);
 
@@ -41,13 +47,13 @@ export function EditTaskDialog({
     e.preventDefault();
     if (!task || !title.trim()) return;
 
-    onSave(task.id, title.trim(), description.trim());
+    onSave(task.id, title.trim(), description.trim(), assignedTo, deadline || undefined);
     onOpenChange(false);
   }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle>Task bearbeiten</DialogTitle>
           <DialogDescription>
@@ -70,6 +76,26 @@ export function EditTaskDialog({
               placeholder="Was soll erledigt werden?"
               value={description}
               onChange={(e) => setDescription(e.target.value)}
+              className="min-h-[350px]"
+            />
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Zugewiesen an</label>
+            <select
+              value={assignedTo}
+              onChange={(e) => setAssignedTo(e.target.value)}
+              className="flex h-9 w-full rounded-md border border-input bg-transparent px-3 py-1 text-sm shadow-sm transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring"
+            >
+              <option value="">Niemand</option>
+              <option value={userName}>{userName}</option>
+            </select>
+          </div>
+          <div>
+            <label className="text-sm font-medium mb-1 block">Deadline</label>
+            <Input
+              type="date"
+              value={deadline}
+              onChange={(e) => setDeadline(e.target.value)}
             />
           </div>
           <DialogFooter>

@@ -11,6 +11,8 @@ export interface Task {
   description: string;
   assignedTo: string; // Name des Nutzers
   columnId: string;
+  order: number;
+  deadline?: string; // ISO-Datum (YYYY-MM-DD)
 }
 
 // Eine Spalte im Kanban-Board (fest: "To Do", "In Progress", "Done")

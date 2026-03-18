@@ -1,21 +1,19 @@
 import { useState } from "react";
 import { useDroppable } from "@dnd-kit/core";
-import {
-  SortableContext,
-  verticalListSortingStrategy,
-} from "@dnd-kit/sortable";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { TaskCard } from "@/components/task/TaskCard";
 import { AddTaskDialog } from "@/components/task/AddTaskDialog";
+import { useUserName } from "@/context/UserNameContext";
 import type { Column, Task } from "@/types";
 
 interface ColumnComponentProps {
   column: Column;
   tasks: Task[]; // Nur die Tasks dieser Spalte
-  onAddTask: (columnId: string, title: string, description: string) => void;
+  onAddTask: (columnId: string, title: string, description: string, assignedTo: string, deadline?: string) => void;
   onDeleteTask: (taskId: string) => void;
   onEditTask: (task: Task) => void;
+  isDragging: boolean;
 }
 
 // Eine einzelne Kanban-Spalte mit ihren Tasks (Droppable für Drag & Drop)
@@ -25,14 +23,16 @@ export function ColumnComponent({
   onAddTask,
   onDeleteTask,
   onEditTask,
+  isDragging,
 }: ColumnComponentProps) {
+  const { userName } = useUserName();
   const [showAddTask, setShowAddTask] = useState(false);
 
   // Droppable-Zone: Damit Tasks in diese Spalte gezogen werden können
-  const { setNodeRef } = useDroppable({ id: column.id });
+  const { setNodeRef, isOver } = useDroppable({ id: column.id });
 
   return (
-    <div className="flex w-72 flex-shrink-0 flex-col rounded-lg bg-muted/50 border">
+    <div ref={setNodeRef} className="flex w-72 flex-shrink-0 flex-col rounded-lg bg-muted/50 border">
       {/* Spalten-Header */}
       <div className="flex items-center justify-between p-3 border-b">
         <h3 className="font-semibold text-sm">
@@ -51,23 +51,36 @@ export function ColumnComponent({
         </Button>
       </div>
 
-      {/* Task-Liste (Droppable + Sortable) */}
-      <div ref={setNodeRef} className="flex-1 space-y-2 p-2 min-h-[100px]">
-        <SortableContext
-          items={tasks.map((t) => t.id)}
-          strategy={verticalListSortingStrategy}
+      {/* Drop-Zone oben – nur sichtbar beim Draggen */}
+      {isDragging && (
+        <div
+          className={`mx-2 mt-2 rounded-lg border-2 border-dashed p-3 text-center text-xs transition-colors ${
+            isOver
+              ? "border-primary bg-primary/10 text-primary"
+              : "border-muted-foreground/30 text-muted-foreground"
+          }`}
         >
-          {tasks.map((task) => (
+          Hier ablegen
+        </div>
+      )}
+
+      {/* Task-Liste */}
+      <div className="flex-1 space-y-2 p-2 min-h-[100px]">
+        {tasks.length === 0 ? (
+          <p className="text-xs text-muted-foreground text-center py-6">Keine Tasks vorhanden</p>
+        ) : (
+          tasks.map((task) => (
             <TaskCard key={task.id} task={task} onDelete={onDeleteTask} onEdit={onEditTask} />
-          ))}
-        </SortableContext>
+          ))
+        )}
       </div>
 
       {/* Dialog zum Hinzufügen einer Task */}
       <AddTaskDialog
         open={showAddTask}
         onOpenChange={setShowAddTask}
-        onAdd={(title, description) => onAddTask(column.id, title, description)}
+        userName={userName}
+        onAdd={(title, description, assignedTo, deadline) => onAddTask(column.id, title, description, assignedTo, deadline)}
       />
     </div>
   );

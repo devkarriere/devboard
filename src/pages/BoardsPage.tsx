@@ -11,6 +11,7 @@ import type { Board } from "@/types";
 export function BoardsPage() {
   const [boards, setBoards] = useState<Board[]>(getBoards());
   const [showCreateDialog, setShowCreateDialog] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Boards aus dem LocalStorage neu laden
   function reload() {
@@ -54,14 +55,39 @@ export function BoardsPage() {
                       {board.columns.length} Spalten · {board.tasks.length} Tasks
                     </CardDescription>
                   </Link>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    className="h-8 w-8 text-muted-foreground hover:text-destructive"
-                    onClick={() => handleDelete(board.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                  <div className="relative">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                      onClick={() => setConfirmDeleteId(board.id)}
+                    >
+                      <Trash2 className="h-4 w-4" />
+                    </Button>
+                    {confirmDeleteId === board.id && (
+                      <div className="absolute right-0 top-full z-10 mt-1 rounded-lg border bg-white p-3 shadow-lg w-48">
+                        <p className="text-xs mb-2">Board löschen?</p>
+                        <div className="flex gap-1.5">
+                          <Button
+                            size="sm"
+                            variant="destructive"
+                            className="flex-1 h-7 text-xs"
+                            onClick={() => { setConfirmDeleteId(null); handleDelete(board.id); }}
+                          >
+                            Löschen
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="flex-1 h-7 text-xs"
+                            onClick={() => setConfirmDeleteId(null)}
+                          >
+                            Abbrechen
+                          </Button>
+                        </div>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </CardHeader>
             </Card>

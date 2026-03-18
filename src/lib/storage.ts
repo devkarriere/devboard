@@ -52,6 +52,16 @@ export function createBoard(title: string): void {
   saveBoards(boards);
 }
 
+// Board-Titel aktualisieren
+export function updateBoard(id: string, updates: { title?: string }): void {
+  const boards = loadBoards();
+  const board = boards.find((b) => b.id === id);
+  if (!board) return;
+
+  if (updates.title !== undefined) board.title = updates.title;
+  saveBoards(boards);
+}
+
 // Board löschen
 export function deleteBoard(id: string): void {
   const boards = loadBoards().filter((b) => b.id !== id);
@@ -72,12 +82,14 @@ export function addTask(
   const board = boards.find((b) => b.id === boardId);
   if (!board) throw new Error("Board nicht gefunden");
 
+  const maxOrder = Math.max(0, ...board.tasks.filter((t) => t.columnId === columnId).map((t) => t.order ?? 0));
   const newTask: Task = {
     id: crypto.randomUUID(),
     title,
     description,
     assignedTo,
     columnId,
+    order: maxOrder + 1,
   };
   board.tasks.push(newTask);
   saveBoards(boards);
@@ -98,7 +110,7 @@ export function deleteTask(boardId: string, taskId: string): void {
 export function updateTask(
   boardId: string,
   taskId: string,
-  updates: { title?: string; description?: string },
+  updates: { title?: string; description?: string; assignedTo?: string; deadline?: string },
 ): void {
   const boards = loadBoards();
   const board = boards.find((b) => b.id === boardId);
@@ -109,6 +121,8 @@ export function updateTask(
 
   if (updates.title !== undefined) task.title = updates.title;
   if (updates.description !== undefined) task.description = updates.description;
+  if (updates.assignedTo !== undefined) task.assignedTo = updates.assignedTo;
+  if (updates.deadline !== undefined) task.deadline = updates.deadline || undefined;
   saveBoards(boards);
 }
 
@@ -125,6 +139,8 @@ export function moveTask(
   const task = board.tasks.find((t) => t.id === taskId);
   if (!task) return;
 
+  const maxOrder = Math.max(0, ...board.tasks.filter((t) => t.columnId === newColumnId).map((t) => t.order ?? 0));
   task.columnId = newColumnId;
+  task.order = maxOrder + 1;
   saveBoards(boards);
 }

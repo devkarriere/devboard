@@ -13,6 +13,7 @@ import { ColumnComponent } from "./ColumnComponent";
 import { TaskCard } from "@/components/task/TaskCard";
 import { EditTaskDialog } from "@/components/task/EditTaskDialog";
 import { addTask, deleteTask, updateTask, moveTask } from "@/lib/storage";
+import { useUserName } from "@/context/UserNameContext";
 import type { Board, Task } from "@/types";
 
 interface BoardViewProps {
@@ -22,6 +23,7 @@ interface BoardViewProps {
 
 // Kanban-Board-Ansicht mit Drag & Drop für Tasks zwischen Spalten
 export function BoardView({ board, onBoardChange }: BoardViewProps) {
+  const { userName } = useUserName();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
 
@@ -33,10 +35,10 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
   // Spalten nach Order sortieren
   const sortedColumns = [...board.columns].sort((a, b) => a.order - b.order);
 
-  // Neue Task erstellen (automatisch dem Nutzer zugewiesen)
-  function handleAddTask(columnId: string, title: string, description: string) {
-    const userName = localStorage.getItem("kanban-user-name") || "Nutzer";
-    addTask(board.id, columnId, title, description, userName);
+  // Neue Task erstellen
+  function handleAddTask(columnId: string, title: string, description: string, assignedTo: string, deadline?: string) {
+    const task = addTask(board.id, columnId, title, description, assignedTo);
+    if (deadline) updateTask(board.id, task.id, { deadline });
     onBoardChange();
   }
 
@@ -47,8 +49,8 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
   }
 
   // Task bearbeiten
-  function handleEditTask(taskId: string, title: string, description: string) {
-    updateTask(board.id, taskId, { title, description });
+  function handleEditTask(taskId: string, title: string, description: string, assignedTo: string, deadline?: string) {
+    updateTask(board.id, taskId, { title, description, assignedTo, deadline: deadline ?? "" });
     onBoardChange();
   }
 
@@ -66,11 +68,8 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
     const draggedTask = board.tasks.find((t) => t.id === active.id);
     if (!draggedTask) return;
 
-    // Ziel-Spalte bestimmen: Entweder über einer Task oder direkt über einer Spalte
-    const overTask = board.tasks.find((t) => t.id === over.id);
-    const overColumnId = overTask ? overTask.columnId : (over.id as string);
-
-    // Prüfen ob die Ziel-Spalte existiert
+    // Ziel ist immer eine Spalte (nur Spalten sind Droppable)
+    const overColumnId = over.id as string;
     const columnExists = board.columns.some((c) => c.id === overColumnId);
     if (!columnExists) return;
 
@@ -99,10 +98,11 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
             <ColumnComponent
               key={column.id}
               column={column}
-              tasks={board.tasks.filter((t) => t.columnId === column.id)}
+              tasks={board.tasks.filter((t) => t.columnId === column.id).sort((a, b) => (b.order ?? 0) - (a.order ?? 0))}
               onAddTask={handleAddTask}
               onDeleteTask={handleDeleteTask}
               onEditTask={setEditingTask}
+              isDragging={activeTask !== null}
             />
           ))}
         </div>
@@ -121,6 +121,7 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
         open={editingTask !== null}
         onOpenChange={(open) => { if (!open) setEditingTask(null); }}
         onSave={handleEditTask}
+        userName={userName}
       />
     </div>
   );

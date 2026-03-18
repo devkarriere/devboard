@@ -1,9 +1,10 @@
 import { Link } from "react-router-dom";
 import { LayoutDashboard, UserCircle } from "lucide-react";
+import { useUserName } from "@/context/UserNameContext";
 
 // Header-Leiste mit Navigation und Benutzeranzeige
 export function Header() {
-  const userName = localStorage.getItem("kanban-user-name") || "Nutzer";
+  const { userName } = useUserName();
 
   return (
     <header className="border-b border-[#00c4e0] bg-[#0a0a0a]">
