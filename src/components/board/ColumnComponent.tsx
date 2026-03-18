@@ -51,21 +51,20 @@ export function ColumnComponent({
         </Button>
       </div>
 
-      {/* Drop-Zone oben – nur sichtbar beim Draggen */}
-      {isDragging && (
-        <div
-          className={`mx-2 mt-2 rounded-lg border-2 border-dashed p-3 text-center text-xs transition-colors ${
-            isOver
-              ? "border-primary bg-primary/10 text-primary"
-              : "border-muted-foreground/30 text-muted-foreground"
-          }`}
-        >
-          Hier ablegen
-        </div>
-      )}
-
       {/* Task-Liste */}
-      <div className="flex-1 space-y-2 p-2 min-h-[100px]">
+      <div className="relative flex-1 space-y-2 p-2 min-h-[100px]">
+        {/* Drop-Zone oben – nur sichtbar beim Draggen */}
+        {isDragging && (
+          <div
+            className={`absolute inset-x-2 top-2 z-10 rounded-lg border-2 border-dashed p-3 text-center text-xs transition-colors ${
+              isOver
+                ? "border-primary bg-primary/10 text-primary"
+                : "border-muted-foreground/30 text-muted-foreground"
+            }`}
+          >
+            Hier ablegen
+          </div>
+        )}
         {tasks.length === 0 ? (
           <p className="text-xs text-muted-foreground text-center py-6">Keine Tasks vorhanden</p>
         ) : (

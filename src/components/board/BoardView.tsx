@@ -1,16 +1,15 @@
-import { useState } from "react";
+import { useState, useRef } from "react";
 import {
   DndContext,
-  DragOverlay,
   closestCorners,
   type DragStartEvent,
   type DragOverEvent,
+
   PointerSensor,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
 import { ColumnComponent } from "./ColumnComponent";
-import { TaskCard } from "@/components/task/TaskCard";
 import { EditTaskDialog } from "@/components/task/EditTaskDialog";
 import { addTask, deleteTask, updateTask, moveTask } from "@/lib/storage";
 import { useUserName } from "@/context/UserNameContext";
@@ -26,6 +25,7 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
   const { userName } = useUserName();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
   const [activeTask, setActiveTask] = useState<Task | null>(null);
+  const targetColumnRef = useRef<string | null>(null);
 
   // Sensor-Konfiguration: Erst nach 5px Bewegung startet der Drag
   const sensors = useSensors(
@@ -58,29 +58,29 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
 
   function handleDragStart(event: DragStartEvent) {
     const task = board.tasks.find((t) => t.id === event.active.id);
-    if (task) setActiveTask(task);
+    if (task) {
+      setActiveTask(task);
+      targetColumnRef.current = null;
+    }
   }
 
   function handleDragOver(event: DragOverEvent) {
-    const { active, over } = event;
+    const { over } = event;
     if (!over) return;
 
-    const draggedTask = board.tasks.find((t) => t.id === active.id);
-    if (!draggedTask) return;
-
-    // Ziel ist immer eine Spalte (nur Spalten sind Droppable)
     const overColumnId = over.id as string;
     const columnExists = board.columns.some((c) => c.id === overColumnId);
-    if (!columnExists) return;
-
-    // Task in neue Spalte verschieben
-    if (draggedTask.columnId !== overColumnId) {
-      moveTask(board.id, draggedTask.id, overColumnId);
-      onBoardChange();
+    if (columnExists) {
+      targetColumnRef.current = overColumnId;
     }
   }
 
   function handleDragEnd() {
+    if (activeTask && targetColumnRef.current && activeTask.columnId !== targetColumnRef.current) {
+      moveTask(board.id, activeTask.id, targetColumnRef.current);
+      onBoardChange();
+    }
+    targetColumnRef.current = null;
     setActiveTask(null);
   }
 
@@ -107,12 +107,7 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
           ))}
         </div>
 
-        {/* Drag Overlay: Zeigt Task während des Ziehens */}
-        <DragOverlay>
-          {activeTask ? (
-            <TaskCard task={activeTask} onDelete={() => {}} />
-          ) : null}
-        </DragOverlay>
+
       </DndContext>
 
       {/* Dialog: Task bearbeiten */}

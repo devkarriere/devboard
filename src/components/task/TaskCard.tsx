@@ -23,7 +23,8 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
   } = useDraggable({ id: task.id });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
+    zIndex: isDragging ? 50 : undefined,
   };
 
   return (
@@ -31,7 +32,7 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
       ref={setNodeRef}
       style={style}
       className={`relative rounded-lg border bg-white p-3 shadow-sm ${
-        isDragging ? "opacity-50" : ""
+        isDragging ? "shadow-lg opacity-90" : ""
       }`}
     >
       <div className="flex items-start gap-2">
