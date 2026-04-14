@@ -1,7 +1,5 @@
 import { useState } from "react";
-import { useDraggable } from "@dnd-kit/core";
-import { CSS } from "@dnd-kit/utilities";
-import { GripVertical, Trash2, Calendar, UserCircle } from "lucide-react";
+import { Trash2, Calendar, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import type { Task } from "@/types";
 
@@ -9,42 +7,22 @@ interface TaskCardProps {
   task: Task;
   onDelete: (taskId: string) => void;
   onEdit?: (task: Task) => void;
+  onDragStart?: () => void;
+  onDragEnd?: () => void;
 }
 
-// Einzelne Task-Karte – per Drag & Drop zwischen Spalten verschiebbar
-export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
+// Einzelne Task-Karte
+export function TaskCard({ task, onDelete, onEdit, onDragStart: onDragStartProp, onDragEnd: onDragEndProp }: TaskCardProps) {
   const [showConfirm, setShowConfirm] = useState(false);
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    transform,
-    isDragging,
-  } = useDraggable({ id: task.id });
-
-  const style = {
-    transform: CSS.Translate.toString(transform),
-    zIndex: isDragging ? 50 : undefined,
-  };
 
   return (
     <div
-      ref={setNodeRef}
-      style={style}
-      className={`relative rounded-lg border bg-white p-3 shadow-sm ${
-        isDragging ? "shadow-lg opacity-90" : ""
-      }`}
+      draggable="true"
+      onDragStart={(e) => { e.dataTransfer.setData("taskId", task.id); onDragStartProp?.(); }}
+      onDragEnd={() => onDragEndProp?.()}
+      className="relative rounded-lg border bg-white p-3 shadow-sm cursor-grab active:cursor-grabbing"
     >
       <div className="flex items-start gap-2">
-        {/* Drag Handle */}
-        <button
-          {...attributes}
-          {...listeners}
-          className="mt-0.5 cursor-grab text-muted-foreground hover:text-foreground"
-        >
-          <GripVertical className="h-4 w-4" />
-        </button>
-
         {/* Task-Inhalt */}
         <div className="flex-1 min-w-0">
           <h4
@@ -74,6 +52,8 @@ export function TaskCard({ task, onDelete, onEdit }: TaskCardProps) {
               {new Date(task.deadline).toLocaleDateString("de-DE")}
             </div>
           )}
+
+
         </div>
 
         {/* Löschen-Button */}

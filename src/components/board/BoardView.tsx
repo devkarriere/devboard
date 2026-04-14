@@ -1,14 +1,4 @@
-import { useState, useRef } from "react";
-import {
-  DndContext,
-  closestCorners,
-  type DragStartEvent,
-  type DragOverEvent,
-
-  PointerSensor,
-  useSensor,
-  useSensors,
-} from "@dnd-kit/core";
+import { useState } from "react";
 import { ColumnComponent } from "./ColumnComponent";
 import { EditTaskDialog } from "@/components/task/EditTaskDialog";
 import { addTask, deleteTask, updateTask, moveTask } from "@/lib/storage";
@@ -20,17 +10,11 @@ interface BoardViewProps {
   onBoardChange: () => void; // Wird aufgerufen, um das Board neu zu laden
 }
 
-// Kanban-Board-Ansicht mit Drag & Drop für Tasks zwischen Spalten
+// Kanban-Board-Ansicht
 export function BoardView({ board, onBoardChange }: BoardViewProps) {
   const { userName } = useUserName();
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [activeTask, setActiveTask] = useState<Task | null>(null);
-  const targetColumnRef = useRef<string | null>(null);
-
-  // Sensor-Konfiguration: Erst nach 5px Bewegung startet der Drag
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  );
+  const [draggingFromColumnId, setDraggingFromColumnId] = useState<string | null>(null);
 
   // Spalten nach Order sortieren
   const sortedColumns = [...board.columns].sort((a, b) => a.order - b.order);
@@ -54,61 +38,31 @@ export function BoardView({ board, onBoardChange }: BoardViewProps) {
     onBoardChange();
   }
 
-  // --- Drag & Drop Handler ---
-
-  function handleDragStart(event: DragStartEvent) {
-    const task = board.tasks.find((t) => t.id === event.active.id);
-    if (task) {
-      setActiveTask(task);
-      targetColumnRef.current = null;
-    }
-  }
-
-  function handleDragOver(event: DragOverEvent) {
-    const { over } = event;
-    if (!over) return;
-
-    const overColumnId = over.id as string;
-    const columnExists = board.columns.some((c) => c.id === overColumnId);
-    if (columnExists) {
-      targetColumnRef.current = overColumnId;
-    }
-  }
-
-  function handleDragEnd() {
-    if (activeTask && targetColumnRef.current && activeTask.columnId !== targetColumnRef.current) {
-      moveTask(board.id, activeTask.id, targetColumnRef.current);
-      onBoardChange();
-    }
-    targetColumnRef.current = null;
-    setActiveTask(null);
+  // Task in eine andere Spalte verschieben
+  function handleMoveTask(taskId: string, newColumnId: string) {
+    moveTask(board.id, taskId, newColumnId);
+    onBoardChange();
   }
 
   return (
     <div>
-      <DndContext
-        sensors={sensors}
-        collisionDetection={closestCorners}
-        onDragStart={handleDragStart}
-        onDragOver={handleDragOver}
-        onDragEnd={handleDragEnd}
-      >
-        <div className="flex gap-4 overflow-x-auto pb-4">
-          {sortedColumns.map((column) => (
-            <ColumnComponent
-              key={column.id}
-              column={column}
-              tasks={board.tasks.filter((t) => t.columnId === column.id).sort((a, b) => (b.order ?? 0) - (a.order ?? 0))}
-              onAddTask={handleAddTask}
-              onDeleteTask={handleDeleteTask}
-              onEditTask={setEditingTask}
-              isDragging={activeTask !== null}
-            />
-          ))}
-        </div>
-
-
-      </DndContext>
+      <div className="flex gap-4 overflow-x-auto pb-4">
+        {sortedColumns.map((column) => (
+          <ColumnComponent
+            key={column.id}
+            column={column}
+            columns={board.columns}
+            tasks={board.tasks.filter((t) => t.columnId === column.id)}
+            draggingFromColumnId={draggingFromColumnId}
+            onAddTask={handleAddTask}
+            onDeleteTask={handleDeleteTask}
+            onEditTask={setEditingTask}
+            onMoveTask={handleMoveTask}
+            onDragStart={(columnId) => setDraggingFromColumnId(columnId)}
+            onDragEnd={() => setDraggingFromColumnId(null)}
+          />
+        ))}
+      </div>
 
       {/* Dialog: Task bearbeiten */}
       <EditTaskDialog

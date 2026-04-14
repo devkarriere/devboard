@@ -82,16 +82,15 @@ export function addTask(
   const board = boards.find((b) => b.id === boardId);
   if (!board) throw new Error("Board nicht gefunden");
 
-  const maxOrder = Math.max(0, ...board.tasks.filter((t) => t.columnId === columnId).map((t) => t.order ?? 0));
   const newTask: Task = {
     id: crypto.randomUUID(),
     title,
     description,
     assignedTo,
     columnId,
-    order: maxOrder + 1,
   };
-  board.tasks.push(newTask);
+  // Neue Task am Anfang einfügen → erscheint oben in der Spalte
+  board.tasks.unshift(newTask);
   saveBoards(boards);
   return newTask;
 }
@@ -136,11 +135,12 @@ export function moveTask(
   const board = boards.find((b) => b.id === boardId);
   if (!board) return;
 
-  const task = board.tasks.find((t) => t.id === taskId);
-  if (!task) return;
+  const taskIndex = board.tasks.findIndex((t) => t.id === taskId);
+  if (taskIndex === -1) return;
 
-  const maxOrder = Math.max(0, ...board.tasks.filter((t) => t.columnId === newColumnId).map((t) => t.order ?? 0));
+  // Task aus aktueller Position entfernen und am Anfang einfügen → erscheint oben
+  const [task] = board.tasks.splice(taskIndex, 1);
   task.columnId = newColumnId;
-  task.order = maxOrder + 1;
+  board.tasks.unshift(task);
   saveBoards(boards);
 }
