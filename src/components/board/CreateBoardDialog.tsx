@@ -9,19 +9,18 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { createBoard } from "@/lib/storage";
 
 interface CreateBoardDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onBoardCreated: () => void;
+  onCreate: (title: string) => void;
 }
 
 // Dialog zum Erstellen eines neuen Boards
 export function CreateBoardDialog({
   open,
   onOpenChange,
-  onBoardCreated,
+  onCreate,
 }: CreateBoardDialogProps) {
   const [title, setTitle] = useState("");
 
@@ -29,10 +28,9 @@ export function CreateBoardDialog({
     e.preventDefault();
     if (!title.trim()) return;
 
-    createBoard(title.trim());
+    onCreate(title.trim());
     setTitle("");
     onOpenChange(false);
-    onBoardCreated();
   }
 
   return (

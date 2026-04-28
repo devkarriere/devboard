@@ -1,46 +1,21 @@
-import { useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { useParams, Link } from "react-router-dom";
 import { ArrowLeft, Pencil, Check, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { BoardView } from "@/components/board/BoardView";
-import { getBoard, updateBoard } from "@/lib/storage";
+import { getBoard, saveBoard } from "@/lib/storage";
+import { boardReducer } from "@/lib/boardReducer";
 import type { Board } from "@/types";
 
 // Detailseite eines Boards – zeigt das Kanban-Board
 export function BoardDetailPage() {
   const { id } = useParams<{ id: string }>();
-  const [board, setBoard] = useState<Board | null>(
-    id ? getBoard(id) ?? null : null
-  );
-  const [isEditing, setIsEditing] = useState(false);
-  const [editTitle, setEditTitle] = useState("");
+  const initial = id ? getBoard(id) : undefined;
 
-  // Board aus dem LocalStorage neu laden
-  function reload() {
-    if (!id) return;
-    setBoard(getBoard(id) ?? null);
-  }
-
-  function startEditing() {
-    if (!board) return;
-    setEditTitle(board.title);
-    setIsEditing(true);
-  }
-
-  function saveTitle() {
-    if (!board || !editTitle.trim()) return;
-    updateBoard(board.id, { title: editTitle.trim() });
-    setIsEditing(false);
-    reload();
-  }
-
-  function cancelEditing() {
-    setIsEditing(false);
-  }
-
-  // Fehlerfall: Board nicht gefunden
-  if (!board) {
+  // Fehlerfall: Board nicht gefunden – früh raus, damit der innere Reducer
+  // immer einen gültigen Board-State hat
+  if (!initial) {
     return (
       <div className="text-center py-12">
         <p className="text-lg text-muted-foreground mb-4">Board nicht gefunden.</p>
@@ -52,6 +27,34 @@ export function BoardDetailPage() {
         </Button>
       </div>
     );
+  }
+
+  return <BoardDetail initial={initial} />;
+}
+
+function BoardDetail({ initial }: { initial: Board }) {
+  const [board, dispatch] = useReducer(boardReducer, initial);
+  const [isEditing, setIsEditing] = useState(false);
+  const [editTitle, setEditTitle] = useState("");
+
+  // State nach jeder Änderung in den LocalStorage spiegeln
+  useEffect(() => {
+    saveBoard(board);
+  }, [board]);
+
+  function startEditing() {
+    setEditTitle(board.title);
+    setIsEditing(true);
+  }
+
+  function saveTitle() {
+    if (!editTitle.trim()) return;
+    dispatch({ type: "update_title", title: editTitle.trim() });
+    setIsEditing(false);
+  }
+
+  function cancelEditing() {
+    setIsEditing(false);
   }
 
   return (
@@ -97,7 +100,7 @@ export function BoardDetailPage() {
       </div>
 
       {/* Kanban-Ansicht */}
-      <BoardView board={board} onBoardChange={reload} />
+      <BoardView board={board} dispatch={dispatch} />
     </div>
   );
 }

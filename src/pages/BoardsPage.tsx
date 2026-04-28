@@ -1,28 +1,22 @@
-import { useState } from "react";
+import { useEffect, useReducer, useState } from "react";
 import { Link } from "react-router-dom";
 import { Plus, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { CreateBoardDialog } from "@/components/board/CreateBoardDialog";
-import { getBoards, deleteBoard } from "@/lib/storage";
-import type { Board } from "@/types";
+import { getBoards, saveBoards } from "@/lib/storage";
+import { boardsReducer } from "@/lib/boardsReducer";
 
 // Übersichtsseite: Zeigt alle Boards als Karten
 export function BoardsPage() {
-  const [boards, setBoards] = useState<Board[]>(getBoards());
+  const [boards, dispatch] = useReducer(boardsReducer, undefined, getBoards);
   const [showCreateDialog, setShowCreateDialog] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
-  // Boards aus dem LocalStorage neu laden
-  function reload() {
-    setBoards(getBoards());
-  }
-
-  // Board löschen
-  function handleDelete(id: string) {
-    deleteBoard(id);
-    reload();
-  }
+  // State nach jeder Änderung in den LocalStorage spiegeln
+  useEffect(() => {
+    saveBoards(boards);
+  }, [boards]);
 
   return (
     <div>
@@ -72,7 +66,10 @@ export function BoardsPage() {
                             size="sm"
                             variant="destructive"
                             className="flex-1 h-7 text-xs"
-                            onClick={() => { setConfirmDeleteId(null); handleDelete(board.id); }}
+                            onClick={() => {
+                              setConfirmDeleteId(null);
+                              dispatch({ type: "delete", id: board.id });
+                            }}
                           >
                             Löschen
                           </Button>
@@ -99,7 +96,7 @@ export function BoardsPage() {
       <CreateBoardDialog
         open={showCreateDialog}
         onOpenChange={setShowCreateDialog}
-        onBoardCreated={reload}
+        onCreate={(title) => dispatch({ type: "create", title })}
       />
     </div>
   );
