@@ -1,3 +1,15 @@
+/**
+ * Reducer für die Liste aller Boards: Anlegen und Löschen.
+ *
+ * @arch-id boardsreducer
+ * @arch-type state
+ * @arch-title boardsReducer
+ * @arch-badge Reducer
+ * @arch-subtitle create | delete
+ * @arch-summary Pure Funktion über Board[]. "create" erzeugt ein neues Board mit drei Default-Spalten ("To Do", "In Progress", "Done") und leerer Task-Liste. "delete" entfernt das Board mit der gegebenen ID. Wird in der BoardsPage per useReducer benutzt.
+ * @arch-group state
+ * @arch-step 3
+ */
 import type { Board } from "@/types";
 
 export type BoardsAction =

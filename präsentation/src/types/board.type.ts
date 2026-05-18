@@ -7,6 +7,8 @@ export interface Board {
 export interface Task {
   id: string
   title: string
-  column: "ToDo" | "InProgress" | "Done"
-  description: string
+  column: "ToDo" | "Progress" | "Done"
+  assignedTo?: string
+  description?: string
+  deadline?: string
 }

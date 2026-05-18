@@ -1,3 +1,15 @@
+/**
+ * Modaler Dialog zum Anlegen einer neuen Task in einer Spalte.
+ *
+ * @arch-id addtaskdialog
+ * @arch-type component
+ * @arch-title AddTaskDialog
+ * @arch-badge Dialog
+ * @arch-subtitle Titel · Beschreibung · Zuweisung · Deadline
+ * @arch-summary Formular-Dialog mit vier Feldern (Titel pflicht, Rest optional). Bei Submit wird onAdd aufgerufen und der State zurückgesetzt. Die Zuweisung bietet aktuell nur den eigenen Nutzer aus dem UserNameContext an.
+ * @arch-group core
+ * @arch-step 6
+ */
 import { useState } from "react";
 import {
   Dialog,
@@ -18,7 +30,6 @@ interface AddTaskDialogProps {
   onAdd: (title: string, description: string, assignedTo: string, deadline?: string) => void;
 }
 
-// Dialog zum Erstellen einer neuen Task
 export function AddTaskDialog({
   open,
   onOpenChange,

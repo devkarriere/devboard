@@ -1,0 +1,711 @@
+{
+  "$schema": "./schema/architektur.schema.json",
+  "project": {
+    "name": "Devboard",
+    "root": "src/",
+    "stack": []
+  },
+  "groups": [
+    {
+      "id": "routing",
+      "label": "Routing & Layout",
+      "tint": "rgba(15, 191, 160, 0.07)"
+    },
+    {
+      "id": "core",
+      "label": "core",
+      "tint": "rgba(160, 160, 160, 0.05)"
+    },
+    {
+      "id": "leaves",
+      "label": "leaves",
+      "tint": "rgba(160, 160, 160, 0.05)"
+    },
+    {
+      "id": "context",
+      "label": "context",
+      "tint": "rgba(160, 160, 160, 0.05)"
+    },
+    {
+      "id": "state",
+      "label": "State & Persistenz",
+      "tint": "rgba(123, 91, 255, 0.07)"
+    },
+    {
+      "id": "entry",
+      "label": "Entry",
+      "tint": "rgba(0, 220, 255, 0.07)"
+    },
+    {
+      "id": "views",
+      "label": "Views / Routen",
+      "tint": "rgba(243, 156, 18, 0.07)"
+    },
+    {
+      "id": "types",
+      "label": "Typen",
+      "tint": "rgba(138, 148, 163, 0.07)"
+    },
+    {
+      "id": "external",
+      "label": "Browser-API",
+      "tint": "rgba(200, 200, 200, 0.06)"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "router",
+      "type": "router",
+      "title": "createBrowserRouter",
+      "badge": "Router",
+      "path": "src/App.tsx",
+      "group": "routing",
+      "summary": "Erstellt den React-Router. Layout ist der gemeinsame Rahmen für alle Routen, \"/\" leitet auf /boards um. Basename \"/devboard\" für Subpath-Hosting.",
+      "sections": [],
+      "subtitle": "4 Routen (/, /boards, /boards/:id, /profile)",
+      "position": {
+        "x": 558,
+        "y": 116,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "boardview",
+      "type": "component",
+      "title": "BoardView",
+      "badge": "Komponente",
+      "path": "src/components/board/BoardView.tsx",
+      "group": "core",
+      "summary": "Sortiert die Spalten nach order und rendert pro Spalte eine ColumnComponent. Hält State über die gerade gezogene Spalte (für visuelles Feedback) und die zu bearbeitende Task. Aktionen werden als BoardAction zum Reducer der BoardDetailPage durchgereicht.",
+      "sections": [],
+      "subtitle": "Spalten-Liste + EditTaskDialog · dispatch nach oben",
+      "position": {
+        "x": 1290,
+        "y": 254,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "columncomponent",
+      "type": "component",
+      "title": "ColumnComponent",
+      "badge": "Komponente",
+      "path": "src/components/board/ColumnComponent.tsx",
+      "group": "core",
+      "summary": "Rendert eine Spalte mit Titel, Task-Counter und Plus-Button (öffnet AddTaskDialog). Akzeptiert per onDrop verschobene Tasks aus anderen Spalten und zeigt eine Drop-Zone mit visuellem Highlight. Drag aus der eigenen Spalte wird ignoriert.",
+      "sections": [],
+      "subtitle": "TaskCard-Liste · Drop-Target · AddTaskDialog",
+      "position": {
+        "x": 1870,
+        "y": 116,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "createboarddialog",
+      "type": "component",
+      "title": "CreateBoardDialog",
+      "badge": "Dialog",
+      "path": "src/components/board/CreateBoardDialog.tsx",
+      "group": "core",
+      "summary": "Eingabe-Dialog für den Board-Namen. Bei Submit ruft er onCreate auf (Parent dispatched dann den boardsReducer \"create\"-Branch, der automatisch drei Default-Spalten anlegt).",
+      "sections": [],
+      "subtitle": "Titel-Input → onCreate(title)",
+      "position": {
+        "x": 1290,
+        "y": 116,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "header",
+      "type": "component",
+      "title": "Header",
+      "badge": "Komponente",
+      "path": "src/components/layout/Header.tsx",
+      "group": "routing",
+      "summary": "Persistente Top-Bar. Links: Logo verlinkt auf /boards. Rechts: aktueller Benutzername (aus UserNameContext) als Link auf /profile.",
+      "sections": [],
+      "subtitle": "Logo-Link + Profil-Link · liest userName aus Context",
+      "position": {
+        "x": 558,
+        "y": 254,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "layout",
+      "type": "router",
+      "title": "Layout",
+      "badge": "Layout",
+      "path": "src/components/layout/Layout.tsx",
+      "group": "routing",
+      "summary": "Gemeinsamer Rahmen aller Seiten. Rendert oben den Header und darunter den vom Router gelieferten Routen-Inhalt (Outlet).",
+      "sections": [],
+      "subtitle": "Header + <Outlet />",
+      "position": {
+        "x": 848,
+        "y": 116,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "addtaskdialog",
+      "type": "component",
+      "title": "AddTaskDialog",
+      "badge": "Dialog",
+      "path": "src/components/task/AddTaskDialog.tsx",
+      "group": "core",
+      "summary": "Formular-Dialog mit vier Feldern (Titel pflicht, Rest optional). Bei Submit wird onAdd aufgerufen und der State zurückgesetzt. Die Zuweisung bietet aktuell nur den eigenen Nutzer aus dem UserNameContext an.",
+      "sections": [],
+      "subtitle": "Titel · Beschreibung · Zuweisung · Deadline",
+      "position": {
+        "x": 1580,
+        "y": 116,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "edittaskdialog",
+      "type": "component",
+      "title": "EditTaskDialog",
+      "badge": "Dialog",
+      "path": "src/components/task/EditTaskDialog.tsx",
+      "group": "core",
+      "summary": "Spiegelt beim Öffnen die aktuellen Task-Felder in lokalen State. Bei Submit liefert onSave die geänderten Werte zurück, die der Parent als update_task-Action dispatched. Größeres Layout (sm:max-w-2xl) und höhere Beschreibung als beim AddTaskDialog.",
+      "sections": [],
+      "subtitle": "Vorbefüllt aus task · onSave(taskId, ...)",
+      "position": {
+        "x": 1580,
+        "y": 254,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "taskcard",
+      "type": "component",
+      "title": "TaskCard",
+      "badge": "Blatt-Komponente",
+      "path": "src/components/task/TaskCard.tsx",
+      "group": "leaves",
+      "summary": "Zeigt Titel, Beschreibung, Zuweisung und Deadline (Deadline rot, wenn überfällig). Drag-and-Drop legt die Task-ID per dataTransfer. Löschen passiert mit einem Bestätigungs-Popover, um Fehlklicks zu vermeiden.",
+      "sections": [],
+      "subtitle": "draggable · onEdit · onDelete (mit Bestätigung)",
+      "position": {
+        "x": 1580,
+        "y": 1081,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "usernamecontext",
+      "type": "state",
+      "title": "UserNameContext",
+      "badge": "Context",
+      "path": "src/context/UserNameContext.tsx",
+      "group": "context",
+      "summary": "Stellt den Benutzernamen App-weit bereit. Der Provider hält den Namen im State, persistiert ihn unter \"kanban-user-name\" im LocalStorage und liefert ihn über den useUserName-Hook an Consumer.",
+      "sections": [],
+      "subtitle": "{ userName, setUserName } · LocalStorage-Spiegel",
+      "position": {
+        "x": 116,
+        "y": 1081,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "boardreducer",
+      "type": "state",
+      "title": "boardReducer",
+      "badge": "Reducer",
+      "path": "src/lib/boardReducer.ts",
+      "group": "state",
+      "summary": "Pure Funktion, die den Board-State immutable transformiert. add_task und move_task fügen jeweils am Anfang der Liste ein, damit neue/verschobene Tasks oben in der Spalte erscheinen. Wird in der BoardDetailPage per useReducer benutzt.",
+      "sections": [],
+      "subtitle": "update_title | add/delete/update/move_task",
+      "position": {
+        "x": 848,
+        "y": 1012,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "boardsreducer",
+      "type": "state",
+      "title": "boardsReducer",
+      "badge": "Reducer",
+      "path": "src/lib/boardsReducer.ts",
+      "group": "state",
+      "summary": "Pure Funktion über Board[]. \"create\" erzeugt ein neues Board mit drei Default-Spalten (\"To Do\", \"In Progress\", \"Done\") und leerer Task-Liste. \"delete\" entfernt das Board mit der gegebenen ID. Wird in der BoardsPage per useReducer benutzt.",
+      "sections": [],
+      "subtitle": "create | delete",
+      "position": {
+        "x": 558,
+        "y": 1012,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "storage",
+      "type": "external",
+      "title": "storage.ts",
+      "badge": "Browser-API",
+      "path": "src/lib/storage.ts",
+      "group": "state",
+      "summary": "Liest und schreibt die komplette Board-Liste als JSON unter \"kanban-data\" und den Anzeigenamen unter \"kanban-user-name\". saveBoard merged ein einzelnes Board, ohne die übrigen zu überschreiben. Beim Parse-Fehler wird stillschweigend auf [] zurückgefallen.",
+      "sections": [],
+      "subtitle": "Keys: \"kanban-data\" · \"kanban-user-name\"",
+      "position": {
+        "x": 558,
+        "y": 1150,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "main",
+      "type": "entry",
+      "title": "main.tsx",
+      "badge": "Entry",
+      "path": "src/main.tsx",
+      "group": "entry",
+      "summary": "Allererste Datei beim Start. Sucht <div id=\"root\"> und ruft createRoot().render(<App />) innerhalb von StrictMode.",
+      "sections": [],
+      "subtitle": "createRoot → <App />",
+      "position": {
+        "x": 116,
+        "y": 185,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "boarddetailpage",
+      "type": "view",
+      "title": "BoardDetailPage",
+      "badge": "Route /boards/:id",
+      "path": "src/pages/BoardDetailPage.tsx",
+      "group": "views",
+      "summary": "Lädt das Board zur URL-ID. Existiert es nicht, wird ein Fallback gezeigt. Sonst rendert die innere BoardDetail-Komponente das Board (BoardView), inline-editierbaren Titel und Zurück-Link.",
+      "sections": [],
+      "subtitle": "useParams → getBoard → BoardView",
+      "position": {
+        "x": 848,
+        "y": 564,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "boardspage",
+      "type": "view",
+      "title": "BoardsPage",
+      "badge": "Route /boards",
+      "path": "src/pages/BoardsPage.tsx",
+      "group": "views",
+      "summary": "Listet alle Boards aus dem LocalStorage als Card-Grid. Buttons öffnen den CreateBoardDialog (neues Board) oder bestätigen das Löschen. Jede Änderung wird über useEffect zurück in den LocalStorage gespiegelt.",
+      "sections": [],
+      "subtitle": "useReducer(boardsReducer) · Karten-Grid + Create-Dialog",
+      "position": {
+        "x": 558,
+        "y": 564,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "profilepage",
+      "type": "view",
+      "title": "ProfilePage",
+      "badge": "Route /profile",
+      "path": "src/pages/ProfilePage.tsx",
+      "group": "views",
+      "summary": "Liest userName aus dem UserNameContext und bietet ein Formular zum Bearbeiten. Beim Speichern wird der neue Name persistiert (LocalStorage) und für 2 Sekunden eine Erfolgsmeldung gezeigt.",
+      "sections": [],
+      "subtitle": "Benutzername bearbeiten · setUserName",
+      "position": {
+        "x": 558,
+        "y": 702,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "types",
+      "type": "type",
+      "title": "types",
+      "badge": "Typen",
+      "path": "src/types/index.ts",
+      "group": "types",
+      "summary": "Zentrale TypeScript-Typen, auf die Reducer, Storage und Komponenten gleichermaßen zugreifen. Tasks referenzieren ihre Spalte über columnId; das Board hält Spalten und Tasks getrennt, damit Verschiebe-Operationen nur das Task-Array anpassen.",
+      "sections": [],
+      "subtitle": "User · Task · Column · Board",
+      "position": {
+        "x": 1580,
+        "y": 633,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "storage",
+      "type": "external",
+      "title": "localStorage",
+      "badge": "Browser-API",
+      "path": "Web API",
+      "group": "external",
+      "summary": "",
+      "sections": [],
+      "position": {
+        "x": 116,
+        "y": 633,
+        "w": 220,
+        "h": 78
+      }
+    }
+  ],
+  "edges": [
+    {
+      "from": "router",
+      "to": "usernamecontext",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "enterAt": 0.5
+    },
+    {
+      "from": "boardview",
+      "to": "columncomponent",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "right",
+      "enterSide": "left",
+      "exitAt": 0.333,
+      "enterAt": 0.5,
+      "curveSide": "left"
+    },
+    {
+      "from": "boardview",
+      "to": "edittaskdialog",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "right",
+      "enterSide": "left",
+      "exitAt": 0.667
+    },
+    {
+      "from": "boardview",
+      "to": "usernamecontext",
+      "label": "useUserName(...)",
+      "style": "solid",
+      "exitSide": "left",
+      "enterSide": "right",
+      "exitAt": 0.667,
+      "enterAt": 0.5,
+      "curveSide": "right"
+    },
+    {
+      "from": "boardview",
+      "to": "boardreducer",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.333,
+      "enterAt": 0.667
+    },
+    {
+      "from": "boardview",
+      "to": "types",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.667,
+      "enterAt": 0.25
+    },
+    {
+      "from": "columncomponent",
+      "to": "taskcard",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.333,
+      "enterAt": 0.667
+    },
+    {
+      "from": "columncomponent",
+      "to": "addtaskdialog",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "left",
+      "enterSide": "right",
+      "exitAt": 0.25
+    },
+    {
+      "from": "columncomponent",
+      "to": "usernamecontext",
+      "label": "useUserName(...)",
+      "style": "solid",
+      "exitSide": "left",
+      "enterSide": "right",
+      "exitAt": 0.75,
+      "enterAt": 0.25
+    },
+    {
+      "from": "columncomponent",
+      "to": "types",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "enterAt": 0.75,
+      "exitAt": 0.667
+    },
+    {
+      "from": "header",
+      "to": "usernamecontext",
+      "label": "useUserName(...)",
+      "style": "solid",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "enterAt": 0.75,
+      "exitAt": 0.25
+    },
+    {
+      "from": "layout",
+      "to": "header",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "left",
+      "enterSide": "right",
+      "exitAt": 0.667
+    },
+    {
+      "from": "edittaskdialog",
+      "to": "types",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "enterAt": 0.5
+    },
+    {
+      "from": "taskcard",
+      "to": "types",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "top",
+      "enterSide": "bottom",
+      "exitAt": 0.333
+    },
+    {
+      "from": "usernamecontext",
+      "to": "storage",
+      "label": "persistiert",
+      "style": "solid",
+      "exitSide": "top",
+      "enterSide": "bottom",
+      "exitAt": 0.25
+    },
+    {
+      "from": "boardreducer",
+      "to": "types",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.6
+    },
+    {
+      "from": "boardsreducer",
+      "to": "types",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.8,
+      "curveSide": "right"
+    },
+    {
+      "from": "storage",
+      "to": "storage",
+      "label": "persistiert",
+      "style": "solid"
+    },
+    {
+      "from": "storage",
+      "to": "types",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.4
+    },
+    {
+      "from": "main",
+      "to": "router",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "right",
+      "enterSide": "left"
+    },
+    {
+      "from": "boarddetailpage",
+      "to": "boardview",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.333,
+      "exitAt": 0.333
+    },
+    {
+      "from": "boarddetailpage",
+      "to": "boardreducer",
+      "label": "useReducer(...)",
+      "style": "solid",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "enterAt": 0.333
+    },
+    {
+      "from": "boarddetailpage",
+      "to": "types",
+      "label": "type",
+      "style": "fine-dotted",
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.2,
+      "exitAt": 0.667
+    },
+    {
+      "from": "boardspage",
+      "to": "createboarddialog",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "right",
+      "enterSide": "left",
+      "exitAt": 0.25,
+      "curveSide": "left"
+    },
+    {
+      "from": "boardspage",
+      "to": "boardsreducer",
+      "label": "useReducer(...)",
+      "style": "solid",
+      "exitSide": "bottom",
+      "enterSide": "top"
+    },
+    {
+      "from": "profilepage",
+      "to": "usernamecontext",
+      "label": "useUserName(...)",
+      "style": "solid",
+      "exitSide": "left",
+      "enterSide": "right",
+      "enterAt": 0.75
+    },
+    {
+      "from": "router",
+      "to": "router",
+      "label": "RouterProvider",
+      "style": "solid"
+    },
+    {
+      "from": "router",
+      "to": "layout",
+      "label": "Route \"/\"",
+      "style": "dotted",
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.333
+    },
+    {
+      "from": "layout",
+      "to": "boardspage",
+      "label": "Outlet /boards",
+      "style": "dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.25,
+      "enterAt": 0.667
+    },
+    {
+      "from": "layout",
+      "to": "boarddetailpage",
+      "label": "Outlet /boards/:id",
+      "style": "dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.75
+    },
+    {
+      "from": "layout",
+      "to": "profilepage",
+      "label": "Outlet /profile",
+      "style": "dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.5,
+      "enterAt": 0.667
+    },
+    {
+      "from": "header",
+      "to": "boardspage",
+      "label": "<Link>",
+      "style": "dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.5,
+      "enterAt": 0.333
+    },
+    {
+      "from": "header",
+      "to": "profilepage",
+      "label": "<Link>",
+      "style": "dotted",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.75,
+      "enterAt": 0.333
+    },
+    {
+      "from": "boarddetailpage",
+      "to": "boardspage",
+      "label": "<Link>",
+      "style": "dotted",
+      "exitSide": "left",
+      "enterSide": "right",
+      "enterAt": 0.5,
+      "exitAt": 0.333
+    },
+    {
+      "from": "boardspage",
+      "to": "boarddetailpage",
+      "label": "<Link>",
+      "style": "dotted",
+      "exitSide": "right",
+      "enterSide": "left",
+      "exitAt": 0.75,
+      "enterAt": 0.667
+    }
+  ],
+  "steps": [],
+  "tours": {},
+  "glossary": []
+}

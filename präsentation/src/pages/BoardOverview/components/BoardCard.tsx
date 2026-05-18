@@ -10,10 +10,16 @@ import {
 import { Link } from "react-router-dom"
 import type { Board } from "../../../types/board.type"
 
-export default function BoardCard({ board }: { board: Board }) {
+export default function BoardCard({
+  board,
+  onDelete,
+}: {
+  board: Board
+  onDelete: (id: string) => void
+}) {
   return (
     <Link to={`/boards/${board.id}`}>
-      <Card className="border border-black transition-shadow hover:shadow-md">
+      <Card className="transition-shadow hover:shadow-md">
         <CardHeader>
           <CardTitle>{board.title}</CardTitle>
           <CardDescription>
@@ -21,6 +27,10 @@ export default function BoardCard({ board }: { board: Board }) {
           </CardDescription>
           <CardAction>
             <Button
+              onClick={(e) => {
+                e.preventDefault()
+                onDelete(board.id)
+              }}
               className="text-muted-foreground hover:text-destructive"
               size="icon"
               variant="ghost"

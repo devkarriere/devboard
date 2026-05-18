@@ -1,0 +1,198 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://devkarriere.example/architektur.schema.json",
+  "title": "Architektur-Karte",
+  "description": "Daten-Vertrag zwischen Generator (CLI) und Display (statische Web-App). Ein Generator-Lauf je React-Projekt produziert genau eine Datei nach diesem Schema.",
+  "type": "object",
+  "required": ["project", "nodes", "edges"],
+  "properties": {
+    "project": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string" },
+        "root": { "type": "string", "description": "Pfad zum Quellordner relativ zum Projekt-Root, z. B. \"src/\"" },
+        "stack": { "type": "array", "items": { "type": "string" }, "description": "Frei wählbare Tags, z. B. [\"react\", \"vite\", \"typescript\"]" }
+      }
+    },
+    "groups": {
+      "type": "array",
+      "description": "Visuelle Cluster, die Knoten umrahmen.",
+      "items": {
+        "type": "object",
+        "required": ["id", "label"],
+        "properties": {
+          "id":    { "type": "string" },
+          "label": { "type": "string" },
+          "tint":  { "type": "string", "description": "CSS-Farbangabe, z. B. \"rgba(0,220,255,0.06)\"" }
+        }
+      }
+    },
+    "nodes": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Node" }
+    },
+    "edges": {
+      "type": "array",
+      "items": { "$ref": "#/$defs/Edge" }
+    },
+    "steps": {
+      "type": "array",
+      "description": "Lernreise (optional). Reihenfolge = Lernpfad.",
+      "items": { "$ref": "#/$defs/Step" }
+    },
+    "tours": {
+      "type": "object",
+      "description": "Animierte Szenario-Touren über die Karte (optional). Schluessel = Tour-ID.",
+      "additionalProperties": { "$ref": "#/$defs/Tour" }
+    },
+    "glossary": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["term", "definition"],
+        "properties": {
+          "term":       { "type": "string" },
+          "definition": { "type": "string" }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "Node": {
+      "type": "object",
+      "required": ["id", "type", "title"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Stabiler Bezeichner, eindeutig im gesamten Dokument. Default-Ableitung: camelCase aus dem Datei-Namen.",
+          "pattern": "^[a-z0-9][a-z0-9_-]*$"
+        },
+        "type": {
+          "type": "string",
+          "enum": ["entry", "router", "view", "component", "hook", "state", "type", "external"]
+        },
+        "title":    { "type": "string" },
+        "badge":    { "type": "string", "description": "Kurz-Label oben rechts am Knoten, z. B. \"Custom Hook\"" },
+        "subtitle": { "type": "string", "description": "Eine Zeile unter dem Titel — gibt den Zweck des Knotens an" },
+        "summary":  { "type": "string", "description": "Volltext-Einleitung, im Detail-Panel oben angezeigt" },
+        "path":     { "type": "string", "description": "Quell-Datei relativ zum Projekt-Root" },
+        "group":    { "type": "string", "description": "Verweis auf groups[].id" },
+        "position": {
+          "type": "object",
+          "description": "Optional. Wenn gesetzt, überschreibt es das Auto-Layout.",
+          "properties": {
+            "x": { "type": "number" }, "y": { "type": "number" },
+            "w": { "type": "number" }, "h": { "type": "number" }
+          },
+          "required": ["x", "y"]
+        },
+        "sections": {
+          "type": "array",
+          "description": "Tiefere Erklärungen, im Detail-Panel als Abschnitte gerendert.",
+          "items": {
+            "type": "object",
+            "required": ["title"],
+            "oneOf": [
+              { "required": ["body"] },
+              { "required": ["code"] },
+              { "required": ["callout"] }
+            ],
+            "properties": {
+              "title":   { "type": "string" },
+              "body":    { "type": "string", "description": "HTML-Fragment (Absätze, Listen, <strong>, <em>)" },
+              "code":    { "type": "string", "description": "Mehrzeiliger Code-Block, wird vom Display als <pre><code> gerendert" },
+              "callout": { "type": "string", "description": "Hervorgehobener Hinweis (Merksatz)" }
+            }
+          }
+        }
+      }
+    },
+    "Edge": {
+      "type": "object",
+      "required": ["from", "to"],
+      "properties": {
+        "from":  { "type": "string", "description": "Node-ID" },
+        "to":    { "type": "string", "description": "Node-ID" },
+        "label": { "type": "string" },
+        "style": {
+          "type": "string",
+          "enum": ["solid", "dashed", "dotted", "fine-dotted"],
+          "default": "solid",
+          "description": "solid = Render/Import · dashed = Context · dotted = Router · fine-dotted = Typ-Referenz"
+        },
+        "enterSide": { "type": "string", "enum": ["top", "right", "bottom", "left"] },
+        "enterAt":   { "type": "number", "minimum": 0, "maximum": 1 },
+        "exitSide":  { "type": "string", "enum": ["top", "right", "bottom", "left"] },
+        "exitAt":    { "type": "number", "minimum": 0, "maximum": 1 },
+        "curveSide": { "type": "string", "enum": ["left", "right"] },
+        "stepOnly":  { "type": "boolean", "description": "Wenn true, existiert die Kante nur in einem bestimmten Lern-Schritt und wird später entfernt." }
+      }
+    },
+    "Tour": {
+      "type": "object",
+      "required": ["title", "steps"],
+      "properties": {
+        "title": { "type": "string" },
+        "steps": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["title", "description"],
+            "properties": {
+              "title":       { "type": "string" },
+              "description": { "type": "string", "description": "HTML-Fragment, im Tour-Banner angezeigt" },
+              "nodes": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Knoten-IDs, die in diesem Tour-Schritt hervorgehoben werden"
+              },
+              "edges": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": { "type": "string" },
+                  "minItems": 2,
+                  "maxItems": 2
+                },
+                "description": "Kanten als [from, to]-Tupel, die in diesem Tour-Schritt hervorgehoben werden"
+              }
+            }
+          }
+        }
+      }
+    },
+    "Step": {
+      "type": "object",
+      "required": ["number", "title"],
+      "properties": {
+        "number":  { "type": "integer", "minimum": 0, "description": "0 = Einstieg, danach aufsteigend." },
+        "title":   { "type": "string" },
+        "short":   { "type": "string", "description": "Kurz-Bezeichner für Tab-Reiter / Mini-Navigation" },
+        "summary": { "type": "string" },
+        "learn":   { "type": "array", "items": { "type": "string" }, "description": "Lerninhalte (\"Was wird hier verstanden?\")" },
+        "tasks":   { "type": "array", "items": { "type": "string" }, "description": "Aufgaben (\"Was wird hier gebaut?\")" },
+        "added": {
+          "type": "object",
+          "description": "Knoten und Kanten, die in diesem Schritt zum ersten Mal sichtbar werden.",
+          "properties": {
+            "nodes": { "type": "array", "items": { "type": "string" } },
+            "edges": { "type": "array", "items": { "$ref": "#/$defs/Edge" } }
+          }
+        },
+        "removedEdges": {
+          "type": "array",
+          "description": "Kanten, die in diesem Schritt verschwinden (z. B. ersetzt durch eine refaktorierte Variante).",
+          "items": {
+            "type": "object",
+            "required": ["from", "to"],
+            "properties": {
+              "from": { "type": "string" },
+              "to":   { "type": "string" }
+            }
+          }
+        }
+      }
+    }
+  }
+}

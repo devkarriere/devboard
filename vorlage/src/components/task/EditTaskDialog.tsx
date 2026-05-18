@@ -1,3 +1,15 @@
+/**
+ * Modaler Dialog zum Bearbeiten einer bestehenden Task.
+ *
+ * @arch-id edittaskdialog
+ * @arch-type component
+ * @arch-title EditTaskDialog
+ * @arch-badge Dialog
+ * @arch-subtitle Vorbefüllt aus task · onSave(taskId, ...)
+ * @arch-summary Spiegelt beim Öffnen die aktuellen Task-Felder in lokalen State. Bei Submit liefert onSave die geänderten Werte zurück, die der Parent als update_task-Action dispatched. Größeres Layout (sm:max-w-2xl) und höhere Beschreibung als beim AddTaskDialog.
+ * @arch-group core
+ * @arch-step 6
+ */
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -20,7 +32,6 @@ interface EditTaskDialogProps {
   onSave: (taskId: string, title: string, description: string, assignedTo: string, deadline?: string) => void;
 }
 
-// Dialog zum Bearbeiten einer bestehenden Task
 export function EditTaskDialog({
   task,
   open,

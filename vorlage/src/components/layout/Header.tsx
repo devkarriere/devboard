@@ -2,7 +2,18 @@ import { Link } from "react-router-dom";
 import { LayoutDashboard, UserCircle } from "lucide-react";
 import { useUserName } from "@/context/UserNameContext";
 
-// Header-Leiste mit Navigation und Benutzeranzeige
+/**
+ * Header-Leiste mit Logo-Link zur Boards-Übersicht und Benutzeranzeige.
+ *
+ * @arch-id header
+ * @arch-type component
+ * @arch-title Header
+ * @arch-badge Komponente
+ * @arch-subtitle Logo-Link + Profil-Link · liest userName aus Context
+ * @arch-summary Persistente Top-Bar. Links: Logo verlinkt auf /boards. Rechts: aktueller Benutzername (aus UserNameContext) als Link auf /profile.
+ * @arch-group routing
+ * @arch-step 2
+ */
 export function Header() {
   const { userName } = useUserName();
 

@@ -10,7 +10,18 @@ import {
 } from "@/components/ui/card";
 import { useUserName } from "@/context/UserNameContext";
 
-// Profilseite: Hier kann der Benutzername geändert werden
+/**
+ * Profilseite. Bietet ein einfaches Formular zum Ändern des Anzeigenamens.
+ *
+ * @arch-id profilepage
+ * @arch-type view
+ * @arch-title ProfilePage
+ * @arch-badge Route /profile
+ * @arch-subtitle Benutzername bearbeiten · setUserName
+ * @arch-summary Liest userName aus dem UserNameContext und bietet ein Formular zum Bearbeiten. Beim Speichern wird der neue Name persistiert (LocalStorage) und für 2 Sekunden eine Erfolgsmeldung gezeigt.
+ * @arch-group views
+ * @arch-step 4
+ */
 export function ProfilePage() {
   const { userName, setUserName } = useUserName();
   const [name, setName] = useState(userName);

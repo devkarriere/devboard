@@ -1,3 +1,15 @@
+/**
+ * Einzelne Kanban-Spalte mit Header, Drop-Zone und Task-Liste.
+ *
+ * @arch-id columncomponent
+ * @arch-type component
+ * @arch-title ColumnComponent
+ * @arch-badge Komponente
+ * @arch-subtitle TaskCard-Liste · Drop-Target · AddTaskDialog
+ * @arch-summary Rendert eine Spalte mit Titel, Task-Counter und Plus-Button (öffnet AddTaskDialog). Akzeptiert per onDrop verschobene Tasks aus anderen Spalten und zeigt eine Drop-Zone mit visuellem Highlight. Drag aus der eigenen Spalte wird ignoriert.
+ * @arch-group core
+ * @arch-step 5
+ */
 import { useState, useEffect } from "react";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -19,7 +31,6 @@ interface ColumnComponentProps {
   onDragEnd: () => void;
 }
 
-// Eine einzelne Kanban-Spalte mit ihren Tasks
 export function ColumnComponent({
   column,
   columns,

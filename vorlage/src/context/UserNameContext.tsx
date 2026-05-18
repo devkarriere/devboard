@@ -1,3 +1,16 @@
+/**
+ * Globaler Context für den Anzeigenamen des Nutzers.
+ * Liest den initialen Namen aus dem LocalStorage und schreibt jede Änderung zurück.
+ *
+ * @arch-id usernamecontext
+ * @arch-type state
+ * @arch-title UserNameContext
+ * @arch-badge Context
+ * @arch-subtitle { userName, setUserName } · LocalStorage-Spiegel
+ * @arch-summary Stellt den Benutzernamen App-weit bereit. Der Provider hält den Namen im State, persistiert ihn unter "kanban-user-name" im LocalStorage und liefert ihn über den useUserName-Hook an Consumer.
+ * @arch-group context
+ * @arch-step 4
+ */
 import { createContext, useContext, useState, type ReactNode } from "react";
 import { getUserName } from "@/lib/storage";
 

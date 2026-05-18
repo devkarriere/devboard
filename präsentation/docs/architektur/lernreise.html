@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (function () {
+        var p = location.pathname;
+        if (!p.endsWith("/") && !/\.[a-z0-9]+$/i.test(p)) {
+          location.replace(p + "/" + location.search + location.hash);
+        }
+      })();
+    </script>
+    <title>Nutzerverwaltung &middot; Lernreise</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="./DevKarriere_Logo_RZ_DevKarriere_Logo_schwarz_zweifarbig.png"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-brand">
+        <img
+          src="./DevKarriere_Logo_RZ_DevKarriere_Logo_schwarz_zweifarbig.png"
+          alt="DevKarriere"
+          class="topbar-logo"
+        />
+        <div class="topbar-titles">
+          <h1>Nutzerverwaltung &mdash; Lernreise</h1>
+          <p>Gef&uuml;hrter Weg durch alle Aufgaben des Projekts</p>
+        </div>
+      </div>
+      <nav class="topbar-tabs">
+        <a class="topbar-tab" href="./">Architektur-Karte</a>
+        <a class="topbar-tab active" href="./lernreise.html">Lernreise</a>
+      </nav>
+    </header>
+
+    <main class="lernreise-layout">
+      <aside class="lernreise-stepper">
+        <div class="lernreise-stepper-head">
+          <h2>Der Weg</h2>
+          <p>
+            9 Schritte vom leeren Vite-Projekt bis zur fertigen App.
+          </p>
+        </div>
+        <ol class="step-list" id="step-list"></ol>
+      </aside>
+
+      <section class="lernreise-canvas" id="lernreise-canvas">
+        <div class="lernreise-stage-wrap">
+          <div class="lernreise-stage" id="lernreise-stage">
+            <svg
+              class="lernreise-edges"
+              id="lernreise-edges"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <marker
+                  id="l-arrow"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="8"
+                  markerHeight="8"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+                </marker>
+              </defs>
+              <g id="l-edge-layer"></g>
+              <g id="l-label-layer"></g>
+            </svg>
+            <div class="lernreise-nodes" id="lernreise-nodes"></div>
+          </div>
+        </div>
+        <div class="canvas-empty" id="canvas-empty" hidden>
+          <div class="canvas-empty-icon">&#128230;</div>
+          <h2>Noch nichts gebaut</h2>
+          <p>
+            Schritt 0 ist die Projekt-Vorstellung &mdash; hier wird noch nicht
+            geschrieben. Ab Schritt 1 f&uuml;llt sich die Karte mit deinen neu
+            erstellten Bausteinen.
+          </p>
+        </div>
+      </section>
+
+      <aside class="lernreise-detail" id="lernreise-detail"></aside>
+    </main>
+
+    <script src="./app.js"></script>
+    <script src="./lernreise.js"></script>
+  </body>
+</html>

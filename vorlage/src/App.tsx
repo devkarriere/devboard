@@ -9,6 +9,19 @@ import { BoardsPage } from "@/pages/BoardsPage";
 import { BoardDetailPage } from "@/pages/BoardDetailPage";
 import { ProfilePage } from "@/pages/ProfilePage";
 
+/**
+ * Router-Definition. Vier Routen (Root-Redirect, Boards-Übersicht, Board-Detail, Profil)
+ * werden in den gemeinsamen Layout-Rahmen eingehängt.
+ *
+ * @arch-id router
+ * @arch-type router
+ * @arch-title createBrowserRouter
+ * @arch-badge Router
+ * @arch-subtitle 4 Routen (/, /boards, /boards/:id, /profile)
+ * @arch-summary Erstellt den React-Router. Layout ist der gemeinsame Rahmen für alle Routen, "/" leitet auf /boards um. Basename "/devboard" für Subpath-Hosting.
+ * @arch-group routing
+ * @arch-step 2
+ */
 const router = createBrowserRouter(
   [
     {
@@ -21,7 +34,7 @@ const router = createBrowserRouter(
       ],
     },
   ],
-  { basename: "/devboard" }
+  { basename: "/devboard" },
 );
 
 function App() {

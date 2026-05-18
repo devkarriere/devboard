@@ -1,3 +1,15 @@
+/**
+ * Reducer für ein einzelnes Board: Titel-Update plus Task-CRUD und Verschieben zwischen Spalten.
+ *
+ * @arch-id boardreducer
+ * @arch-type state
+ * @arch-title boardReducer
+ * @arch-badge Reducer
+ * @arch-subtitle update_title | add/delete/update/move_task
+ * @arch-summary Pure Funktion, die den Board-State immutable transformiert. add_task und move_task fügen jeweils am Anfang der Liste ein, damit neue/verschobene Tasks oben in der Spalte erscheinen. Wird in der BoardDetailPage per useReducer benutzt.
+ * @arch-group state
+ * @arch-step 5
+ */
 import type { Board, Task } from "@/types";
 
 export type BoardAction =

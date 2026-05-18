@@ -1,0 +1,62 @@
+{
+  "$schema": "../schema/architektur.schema.json",
+  "_comment": "Hand-gepflegtes Manifest für die Lernreise. Enthält NUR Lehrtexte. Knoten/Kanten werden vom Generator über @arch-step-Tags ergänzt. Siehe ../03-lernreise.md.",
+  "steps": [
+    {
+      "number": 0,
+      "title":   "Projekt-Vorstellung",
+      "short":   "Vorstellung",
+      "summary": "Einstieg: Wir schauen uns an, was am Ende entsteht, und welche React-Konzepte dabei zusammenkommen.",
+      "learn": [
+        "Wie sieht die fertige Nutzerverwaltung aus?",
+        "Welche Routen, Formulare und Listen werden wir bauen?",
+        "Welche React-Konzepte treffen aufeinander: States, Reducer, Context, Router, Custom Hooks."
+      ],
+      "tasks": [
+        "Demo der fertigen App ansehen",
+        "Anforderungen durchgehen",
+        "Mental Model machen: wie wirken die Teile zusammen?"
+      ]
+    },
+    {
+      "number": 1,
+      "title":   "Grundgeruest in Vite + Router + leere Ansichten",
+      "short":   "Vite + Router",
+      "summary": "Ein frisches Vite-React-TypeScript-Projekt aufsetzen, React Router einbinden und die drei leeren Ansichten (Overview, Edit, Create) ueber Routen erreichbar machen.",
+      "learn": [
+        "npm create vite@latest — was wird da angelegt?",
+        "Projektstruktur eines Vite/React/TS-Projekts",
+        "main.tsx als Entry Point, App.tsx als Wurzel-Komponente",
+        "react-router-dom installieren",
+        "createBrowserRouter + RouterProvider + <Outlet />",
+        "Dynamische Routen: /edit/:id"
+      ],
+      "tasks": [
+        "Projekt mit Vite initialisieren",
+        "App-Komponente als Wurzel aufsetzen",
+        "React Router einrichten (createBrowserRouter)",
+        "Root-Layout-Komponente mit <Outlet /> bauen",
+        "Drei leere Platzhalter-Views anlegen: Overview, EditView, CreateView",
+        "Routen registrieren: /overview, /edit/:id, /create",
+        "Dev-Server starten und per URL zu den Ansichten navigieren"
+      ]
+    },
+    {
+      "number": 2,
+      "title":   "Sidebar erstellen und verdrahten",
+      "short":   "Sidebar",
+      "summary": "Die Navigationsleiste links dazubauen. Die Sidebar bekommt zwei Link-Buttons, die auf Overview und Create fuehren.",
+      "learn": [
+        "<Link> vs <a href> — Navigation ohne Full-Page-Reload",
+        "Root rendert Sidebar + Outlet nebeneinander",
+        "Warum gibt es KEINEN Link zur Edit-Seite? (braucht eine User-ID)"
+      ],
+      "tasks": [
+        "Sidebar-Komponente mit Logo und Link-Buttons anlegen",
+        "Sidebar im Root-Layout einbinden (neben dem Outlet)",
+        "Link zu /overview und /create hinzufuegen",
+        "Testen: die Sidebar-Buttons wechseln die Ansichten ohne Reload"
+      ]
+    }
+  ]
+}

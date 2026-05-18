@@ -1,0 +1,183 @@
+{
+  "$schema": "../schema/architektur.schema.json",
+  "project": {
+    "name": "Nutzerverwaltung",
+    "root": "src/",
+    "stack": ["react", "typescript", "vite", "react-router"]
+  },
+  "groups": [
+    { "id": "entry",   "label": "Entry",                     "tint": "rgba(0, 220, 255, 0.06)" },
+    { "id": "state",   "label": "State & Persistenz",        "tint": "rgba(123, 91, 255, 0.05)" },
+    { "id": "context", "label": "Context · globale Bruecke", "tint": "rgba(123, 91, 255, 0.07)" },
+    { "id": "routing", "label": "Routing & Layout",          "tint": "rgba(15, 191, 160, 0.05)" },
+    { "id": "views",   "label": "Views / Routen",            "tint": "rgba(243, 156, 18, 0.05)" },
+    { "id": "core",    "label": "Kern-Komponenten",          "tint": "rgba(232, 90, 138, 0.05)" },
+    { "id": "leaves",  "label": "Hook & Blatt-Komponenten",  "tint": "rgba(63, 191, 95, 0.05)" },
+    { "id": "types",   "label": "Typen",                     "tint": "rgba(138, 148, 163, 0.05)" }
+  ],
+  "nodes": [
+    {
+      "id": "main", "type": "entry", "title": "main.tsx", "badge": "Entry",
+      "path": "src/main.tsx", "subtitle": "createRoot → <App />",
+      "group": "entry", "position": { "x": 1080, "y": 60, "w": 240, "h": 74 },
+      "summary": "Einstiegspunkt. Mountet React in das DOM-Element mit ID 'root'.",
+      "sections": [
+        { "title": "Was passiert hier?",
+          "body": "<p>Die Datei <code>main.tsx</code> ist die allererste Datei, die beim Start ausgeführt wird. Sie sucht <code>&lt;div id=\"root\"&gt;</code> und ruft <code>ReactDOM.createRoot().render(&lt;App /&gt;)</code>.</p>" },
+        { "title": "Code",
+          "code": "ReactDOM.createRoot(document.getElementById(\"root\")!).render(\n  <React.StrictMode>\n    <App />\n  </React.StrictMode>\n);" },
+        { "title": "Merke",
+          "callout": "In einer Vite-/React-Anwendung gibt es genau ein <code>createRoot()</code>." }
+      ]
+    },
+    {
+      "id": "app", "type": "entry", "title": "App.tsx", "badge": "Root Component",
+      "path": "src/App.tsx", "subtitle": "useReducer + Router + Context.Provider",
+      "group": "entry", "position": { "x": 1060, "y": 180, "w": 280, "h": 100 },
+      "summary": "Die zentrale Wurzel-Komponente. Kombiniert State-Management, Context und Routing."
+    },
+    {
+      "id": "reducer", "type": "state", "title": "userManagementReducer", "badge": "Reducer",
+      "path": "src/hooks/userManagementReducer.ts",
+      "subtitle": "ADD_USER | REMOVE_USER | UPDATE_USER",
+      "group": "state", "position": { "x": 60, "y": 360, "w": 280, "h": 130 }
+    },
+    {
+      "id": "storage", "type": "external", "title": "localStorage", "badge": "Browser-API",
+      "path": "Web API", "subtitle": "Key: \"users\" (JSON)",
+      "group": "state", "position": { "x": 100, "y": 540, "w": 200, "h": 90 }
+    },
+    {
+      "id": "context", "type": "state", "title": "UserContext", "badge": "Context",
+      "path": "src/context/UserContext.ts", "subtitle": "{ users, usersDispatch }",
+      "group": "context", "position": { "x": 1060, "y": 360, "w": 280, "h": 130 }
+    },
+    {
+      "id": "router", "type": "router", "title": "createBrowserRouter", "badge": "Router",
+      "path": "src/App.tsx", "subtitle": "4 Routen (Root + 3 Children)",
+      "group": "routing", "position": { "x": 1620, "y": 360, "w": 280, "h": 130 }
+    },
+    {
+      "id": "root", "type": "router", "title": "Root", "badge": "Layout",
+      "path": "src/routes/Root.tsx", "subtitle": "Sidebar + <Outlet />",
+      "group": "routing", "position": { "x": 1620, "y": 540, "w": 280, "h": 90 }
+    },
+    {
+      "id": "sidebar", "type": "component", "title": "Sidebar", "badge": "Komponente",
+      "path": "src/components/sidebar/Sidebar.tsx",
+      "subtitle": "Navigation (Link /overview, /create)",
+      "group": "routing", "position": { "x": 1660, "y": 680, "w": 200, "h": 90 }
+    },
+    {
+      "id": "overview", "type": "view", "title": "Overview", "badge": "Route /overview",
+      "path": "src/routes/overview/Overview.tsx", "subtitle": "users.map → UserCard",
+      "group": "views", "position": { "x": 720, "y": 840, "w": 240, "h": 110 }
+    },
+    {
+      "id": "edit", "type": "view", "title": "EditView", "badge": "Route /edit/:id",
+      "path": "src/routes/edit/EditView.tsx", "subtitle": "useParams → find user → UPDATE_USER",
+      "group": "views", "position": { "x": 1020, "y": 840, "w": 240, "h": 110 }
+    },
+    {
+      "id": "create", "type": "view", "title": "CreateView", "badge": "Route /create",
+      "path": "src/routes/create/CreateView.tsx", "subtitle": "ADD_USER dispatchen",
+      "group": "views", "position": { "x": 1320, "y": 840, "w": 240, "h": 110 }
+    },
+    {
+      "id": "usercard", "type": "component", "title": "UserCard", "badge": "Komponente",
+      "path": "src/components/UserCard/UserCard.tsx",
+      "subtitle": "Darstellung + REMOVE_USER",
+      "group": "core", "position": { "x": 680, "y": 1020, "w": 240, "h": 100 }
+    },
+    {
+      "id": "userform", "type": "component", "title": "UserForm", "badge": "Komponente",
+      "path": "src/components/UserForm/UserForm.tsx", "subtitle": "Dual-use: Create + Edit",
+      "group": "core", "position": { "x": 1020, "y": 1020, "w": 280, "h": 110 }
+    },
+    {
+      "id": "useforminput", "type": "hook", "title": "useFormInput", "badge": "Custom Hook",
+      "path": "src/hooks/useFormInput.ts",
+      "subtitle": "Isolierter State pro Eingabefeld · 7× aufgerufen",
+      "summary": "Kapselt useState + Validierung in einem wiederverwendbaren Hook.",
+      "group": "leaves", "position": { "x": 920, "y": 1200, "w": 260, "h": 140 },
+      "sections": [
+        { "title": "Wozu dient dieser Hook?",
+          "body": "<p>Der Hook bündelt drei Aufgaben für ein Eingabefeld …</p>" },
+        { "title": "Code-Highlight",
+          "code": "const { value, handleInputChangeEvent, error } = useFormInput(\"\", true);" },
+        { "title": "Merke",
+          "callout": "Jeder Hook-Aufruf erzeugt einen <strong>eigenen</strong> State-Slot." }
+      ]
+    },
+    { "id": "deletebtn",   "type": "component", "title": "DeleteButton",  "badge": "Komponente", "path": "src/components/DeleteButton/DelelteButton.tsx", "group": "leaves", "position": { "x": 680, "y": 1200, "w": 220, "h": 90 } },
+    { "id": "submitbtn",   "type": "component", "title": "SubmitButton",  "badge": "Komponente", "path": "src/components/SubmitButton/SubmitButton.tsx", "group": "leaves", "position": { "x": 1260, "y": 1225, "w": 200, "h": 90 } },
+    { "id": "textinput",   "type": "component", "title": "TextInput",    "badge": "Komponente", "path": "src/components/TextInput/TextInput.tsx",       "group": "leaves", "position": { "x": 760, "y": 1400, "w": 180, "h": 90 } },
+    { "id": "dateinput",   "type": "component", "title": "DateInput",    "badge": "Komponente", "path": "src/components/DateInput/DateInput.tsx",       "group": "leaves", "position": { "x": 960, "y": 1400, "w": 180, "h": 90 } },
+    { "id": "selectinput", "type": "component", "title": "SelectInput",  "badge": "Komponente", "path": "src/components/SelectInput/SelectInput.tsx",   "group": "leaves", "position": { "x": 1160, "y": 1400, "w": 180, "h": 90 } },
+    { "id": "type-user",       "type": "type", "title": "User (type)",      "badge": "Typ", "path": "src/types/User.ts",       "group": "types", "position": { "x": 60, "y": 1200, "w": 230, "h": 90 } },
+    { "id": "type-validation", "type": "type", "title": "ValidationError",  "badge": "Typ", "path": "src/types/Validation.ts", "group": "types", "position": { "x": 60, "y": 1320, "w": 230, "h": 90 } }
+  ],
+  "edges": [
+    { "from": "main", "to": "app", "label": "rendert", "style": "solid" },
+    { "from": "app",  "to": "reducer", "label": "useReducer(...)", "style": "solid" },
+    { "from": "app",  "to": "context", "label": "Provider value",  "style": "solid" },
+    { "from": "app",  "to": "router",  "label": "RouterProvider",  "style": "solid" },
+    { "from": "reducer", "to": "storage", "label": "persistiert", "style": "solid" },
+    { "from": "router",  "to": "root",     "label": "Route \"/\"",       "style": "dotted" },
+    { "from": "root",    "to": "sidebar",  "label": "rendert",           "style": "solid" },
+    { "from": "root",    "to": "overview", "label": "Outlet /overview",  "style": "dotted", "enterSide": "top", "enterAt": 0.7 },
+    { "from": "root",    "to": "edit",     "label": "Outlet /edit/:id",  "style": "dotted", "enterSide": "top", "enterAt": 0.7 },
+    { "from": "root",    "to": "create",   "label": "Outlet /create",    "style": "dotted", "enterSide": "top", "enterAt": 0.7 },
+    { "from": "sidebar", "to": "overview", "label": "<Link>",            "style": "dotted", "enterSide": "top", "enterAt": 0.88 },
+    { "from": "sidebar", "to": "create",   "label": "<Link>",            "style": "dotted", "enterSide": "top", "enterAt": 0.88 },
+    { "from": "overview", "to": "context",  "label": "useContext(users)",     "style": "dashed", "exitAt": 0.25 },
+    { "from": "edit",     "to": "context",  "label": "useContext + dispatch", "style": "dashed", "exitAt": 0.25 },
+    { "from": "create",   "to": "context",  "label": "dispatch ADD",          "style": "dashed", "exitAt": 0.25 },
+    { "from": "overview", "to": "usercard", "label": "map → rendert",         "style": "solid" },
+    { "from": "usercard", "to": "deletebtn","label": "rendert",               "style": "solid" },
+    { "from": "usercard", "to": "edit",     "label": "<Link /edit/:id>",      "style": "dotted" },
+    { "from": "usercard", "to": "context",  "label": "dispatch REMOVE",       "style": "dashed", "curveSide": "left" },
+    { "from": "create",   "to": "userform", "label": "user={undefined}",      "style": "solid" },
+    { "from": "edit",     "to": "userform", "label": "user={editUser}",       "style": "solid" },
+    { "from": "userform", "to": "useforminput", "label": "7× aufrufen",       "style": "solid" },
+    { "from": "userform", "to": "submitbtn",    "label": "onClick",           "style": "solid" },
+    { "from": "useforminput", "to": "textinput",   "label": "{value,onChange,error}", "style": "solid" },
+    { "from": "useforminput", "to": "dateinput",   "label": "props",                  "style": "solid" },
+    { "from": "useforminput", "to": "selectinput", "label": "props",                  "style": "solid" }
+  ],
+  "steps": [
+    {
+      "number": 0,
+      "title":   "Projekt-Vorstellung",
+      "short":   "Vorstellung",
+      "summary": "Einstieg: Wir schauen uns an, was am Ende entsteht.",
+      "learn":   ["Wie sieht die fertige Nutzerverwaltung aus?", "Welche React-Konzepte treffen aufeinander."],
+      "tasks":   ["Demo der fertigen App ansehen", "Anforderungen durchgehen"],
+      "added":   { "nodes": [], "edges": [] }
+    },
+    {
+      "number": 1,
+      "title":   "Grundgeruest in Vite + Router + leere Ansichten",
+      "short":   "Vite + Router",
+      "summary": "Frisches Vite-React-TS-Projekt aufsetzen, Router einbinden, drei leere Views.",
+      "learn":   ["createBrowserRouter + RouterProvider", "main.tsx als Entry, App.tsx als Wurzel"],
+      "tasks":   ["Projekt mit Vite initialisieren", "Drei leere Platzhalter-Views anlegen"],
+      "added": {
+        "nodes": ["main", "app", "router", "root", "overview", "edit", "create"],
+        "edges": [
+          { "from": "main", "to": "app", "label": "rendert", "style": "solid" },
+          { "from": "app",  "to": "router", "label": "RouterProvider", "style": "solid" },
+          { "from": "router", "to": "root", "label": "Route \"/\"", "style": "dotted" },
+          { "from": "root", "to": "overview", "label": "Outlet /overview", "style": "dotted", "enterSide": "top", "enterAt": 0.7 },
+          { "from": "root", "to": "edit",     "label": "Outlet /edit/:id", "style": "dotted", "enterSide": "top", "enterAt": 0.7 },
+          { "from": "root", "to": "create",   "label": "Outlet /create",   "style": "dotted", "enterSide": "top", "enterAt": 0.7 }
+        ]
+      }
+    }
+  ],
+  "glossary": [
+    { "term": "Reducer",      "definition": "Reine Funktion (state, action) → newState. Berechnet den nächsten Zustand basierend auf einer Action." },
+    { "term": "Context",      "definition": "React-Mechanismus, mit dem Daten ohne Prop-Drilling tief im Komponenten-Baum verfügbar werden." },
+    { "term": "Custom Hook",  "definition": "Wiederverwendbare Funktion, die mit 'use' beginnt und intern andere Hooks (useState, useEffect, …) aufruft." }
+  ]
+}

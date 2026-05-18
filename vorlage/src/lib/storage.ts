@@ -1,3 +1,15 @@
+/**
+ * LocalStorage-Wrapper für Boards und Benutzername.
+ *
+ * @arch-id storage
+ * @arch-type external
+ * @arch-title storage.ts
+ * @arch-badge Browser-API
+ * @arch-subtitle Keys: "kanban-data" · "kanban-user-name"
+ * @arch-summary Liest und schreibt die komplette Board-Liste als JSON unter "kanban-data" und den Anzeigenamen unter "kanban-user-name". saveBoard merged ein einzelnes Board, ohne die übrigen zu überschreiben. Beim Parse-Fehler wird stillschweigend auf [] zurückgefallen.
+ * @arch-group state
+ * @arch-step 3
+ */
 import type { Board } from "@/types";
 
 // Key für den LocalStorage

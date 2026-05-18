@@ -1,3 +1,15 @@
+/**
+ * Einzelne Task-Karte. Klick auf Titel öffnet die Bearbeitung, Karte ist drag-fähig.
+ *
+ * @arch-id taskcard
+ * @arch-type component
+ * @arch-title TaskCard
+ * @arch-badge Blatt-Komponente
+ * @arch-subtitle draggable · onEdit · onDelete (mit Bestätigung)
+ * @arch-summary Zeigt Titel, Beschreibung, Zuweisung und Deadline (Deadline rot, wenn überfällig). Drag-and-Drop legt die Task-ID per dataTransfer. Löschen passiert mit einem Bestätigungs-Popover, um Fehlklicks zu vermeiden.
+ * @arch-group leaves
+ * @arch-step 5
+ */
 import { useState } from "react";
 import { Trash2, Calendar, UserCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -11,7 +23,6 @@ interface TaskCardProps {
   onDragEnd?: () => void;
 }
 
-// Einzelne Task-Karte
 export function TaskCard({ task, onDelete, onEdit, onDragStart: onDragStartProp, onDragEnd: onDragEndProp }: TaskCardProps) {
   const [showConfirm, setShowConfirm] = useState(false);
 

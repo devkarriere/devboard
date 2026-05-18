@@ -1,3 +1,15 @@
+/**
+ * Modaler Dialog zum Anlegen eines neuen Boards.
+ *
+ * @arch-id createboarddialog
+ * @arch-type component
+ * @arch-title CreateBoardDialog
+ * @arch-badge Dialog
+ * @arch-subtitle Titel-Input → onCreate(title)
+ * @arch-summary Eingabe-Dialog für den Board-Namen. Bei Submit ruft er onCreate auf (Parent dispatched dann den boardsReducer "create"-Branch, der automatisch drei Default-Spalten anlegt).
+ * @arch-group core
+ * @arch-step 3
+ */
 import { useState } from "react";
 import {
   Dialog,
@@ -16,7 +28,6 @@ interface CreateBoardDialogProps {
   onCreate: (title: string) => void;
 }
 
-// Dialog zum Erstellen eines neuen Boards
 export function CreateBoardDialog({
   open,
   onOpenChange,

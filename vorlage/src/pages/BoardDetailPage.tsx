@@ -8,7 +8,18 @@ import { getBoard, saveBoard } from "@/lib/storage";
 import { boardReducer } from "@/lib/boardReducer";
 import type { Board } from "@/types";
 
-// Detailseite eines Boards – zeigt das Kanban-Board
+/**
+ * Detailseite eines Boards. Zeigt das Kanban-Board und erlaubt Titel-Bearbeitung.
+ *
+ * @arch-id boarddetailpage
+ * @arch-type view
+ * @arch-title BoardDetailPage
+ * @arch-badge Route /boards/:id
+ * @arch-subtitle useParams → getBoard → BoardView
+ * @arch-summary Lädt das Board zur URL-ID. Existiert es nicht, wird ein Fallback gezeigt. Sonst rendert die innere BoardDetail-Komponente das Board (BoardView), inline-editierbaren Titel und Zurück-Link.
+ * @arch-group views
+ * @arch-step 3
+ */
 export function BoardDetailPage() {
   const { id } = useParams<{ id: string }>();
   const initial = id ? getBoard(id) : undefined;

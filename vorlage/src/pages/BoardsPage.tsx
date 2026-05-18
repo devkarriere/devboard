@@ -7,7 +7,18 @@ import { CreateBoardDialog } from "@/components/board/CreateBoardDialog";
 import { getBoards, saveBoards } from "@/lib/storage";
 import { boardsReducer } from "@/lib/boardsReducer";
 
-// Übersichtsseite: Zeigt alle Boards als Karten
+/**
+ * Übersichtsseite aller Boards. Erlaubt Anlegen und Löschen ganzer Boards.
+ *
+ * @arch-id boardspage
+ * @arch-type view
+ * @arch-title BoardsPage
+ * @arch-badge Route /boards
+ * @arch-subtitle useReducer(boardsReducer) · Karten-Grid + Create-Dialog
+ * @arch-summary Listet alle Boards aus dem LocalStorage als Card-Grid. Buttons öffnen den CreateBoardDialog (neues Board) oder bestätigen das Löschen. Jede Änderung wird über useEffect zurück in den LocalStorage gespiegelt.
+ * @arch-group views
+ * @arch-step 3
+ */
 export function BoardsPage() {
   const [boards, dispatch] = useReducer(boardsReducer, undefined, getBoards);
   const [showCreateDialog, setShowCreateDialog] = useState(false);

@@ -1,3 +1,15 @@
+/**
+ * Kanban-Board-Ansicht. Rendert alle Spalten nebeneinander und vermittelt Drag-State + Edit-Dialog.
+ *
+ * @arch-id boardview
+ * @arch-type component
+ * @arch-title BoardView
+ * @arch-badge Komponente
+ * @arch-subtitle Spalten-Liste + EditTaskDialog · dispatch nach oben
+ * @arch-summary Sortiert die Spalten nach order und rendert pro Spalte eine ColumnComponent. Hält State über die gerade gezogene Spalte (für visuelles Feedback) und die zu bearbeitende Task. Aktionen werden als BoardAction zum Reducer der BoardDetailPage durchgereicht.
+ * @arch-group core
+ * @arch-step 5
+ */
 import { useState, type Dispatch } from "react";
 import { ColumnComponent } from "./ColumnComponent";
 import { EditTaskDialog } from "@/components/task/EditTaskDialog";
@@ -10,7 +22,6 @@ interface BoardViewProps {
   dispatch: Dispatch<BoardAction>;
 }
 
-// Kanban-Board-Ansicht
 export function BoardView({ board, dispatch }: BoardViewProps) {
   const { userName } = useUserName();
   const [editingTask, setEditingTask] = useState<Task | null>(null);

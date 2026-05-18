@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="de">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Nutzerverwaltung &middot; Architektur-Uebersicht</title>
+    <link
+      rel="icon"
+      type="image/png"
+      href="./DevKarriere_Logo_RZ_DevKarriere_Logo_schwarz_zweifarbig.png"
+    />
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-brand">
+        <img
+          src="DevKarriere_Logo_RZ_DevKarriere_Logo_schwarz_zweifarbig.png"
+          alt="DevKarriere"
+          class="topbar-logo"
+        />
+        <div class="topbar-titles">
+          <h1>Nutzerverwaltung &mdash; Architektur-Karte</h1>
+          <p>
+            Interaktive Uebersicht &uuml;ber States, Reducer, Context, Router
+            &amp; Custom Hooks
+          </p>
+        </div>
+      </div>
+      <div class="topbar-actions">
+        <button class="btn btn-secondary" id="btn-glossar">Glossar</button>
+        <button class="btn btn-secondary" id="btn-reset-view">
+          Ansicht zuruecksetzen
+        </button>
+      </div>
+      <nav class="topbar-tabs">
+        <a class="topbar-tab active" href="./">Architektur-Karte</a>
+        <a class="topbar-tab" href="./lernreise.html">Lernreise</a>
+      </nav>
+    </header>
+
+    <main class="layout">
+      <aside class="side-left">
+        <section class="panel">
+          <h2>Szenario-Touren</h2>
+          <p class="panel-subtitle">
+            Klicke eine Tour, um den Datenfluss als animierte Sequenz auf der
+            Karte zu erleben.
+          </p>
+          <div class="tour-list">
+            <button class="tour-card" data-tour="create">
+              <span class="tour-number">1</span>
+              <div class="tour-info">
+                <strong>Nutzer erstellen</strong>
+                <span>Submit &rarr; Reducer &rarr; Context &rarr; UI</span>
+              </div>
+            </button>
+            <button class="tour-card" data-tour="edit">
+              <span class="tour-number">2</span>
+              <div class="tour-info">
+                <strong>Nutzer bearbeiten</strong>
+                <span>URL-Param &rarr; Form vorgefuellt &rarr; Update</span>
+              </div>
+            </button>
+            <button class="tour-card" data-tour="delete">
+              <span class="tour-number">3</span>
+              <div class="tour-info">
+                <strong>Nutzer loeschen</strong>
+                <span>UserCard &rarr; Dispatch &rarr; Re-Render</span>
+              </div>
+            </button>
+            <button class="tour-card" data-tour="init">
+              <span class="tour-number">4</span>
+              <div class="tour-info">
+                <strong>App-Start &amp; Hydration</strong>
+                <span>localStorage &rarr; Reducer &rarr; Context</span>
+              </div>
+            </button>
+          </div>
+          <button class="btn btn-ghost btn-small" id="btn-stop-tour" hidden>
+            Tour stoppen
+          </button>
+        </section>
+
+        <section class="panel">
+          <h2>Legende</h2>
+          <ul class="legend-list">
+            <li class="legend-item">
+              <span class="legend-dot dot-entry"></span>
+              <span>Entry &amp; Root</span>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot dot-state"></span>
+              <span>State &amp; Context</span>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot dot-router"></span>
+              <span>Routing</span>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot dot-view"></span>
+              <span>Route / View</span>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot dot-component"></span>
+              <span>Komponente</span>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot dot-hook"></span>
+              <span>Custom Hook</span>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot dot-type"></span>
+              <span>Typ / Interface</span>
+            </li>
+            <li class="legend-item">
+              <span class="legend-dot dot-external"></span>
+              <span>Browser-API</span>
+            </li>
+          </ul>
+
+          <div class="legend-divider"></div>
+
+          <ul class="legend-list">
+            <li class="legend-item">
+              <svg class="legend-edge" viewBox="0 0 40 10" aria-hidden="true">
+                <line
+                  x1="2"
+                  y1="5"
+                  x2="38"
+                  y2="5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                />
+              </svg>
+              <span>Import &amp; Render</span>
+            </li>
+            <li class="legend-item">
+              <svg class="legend-edge" viewBox="0 0 40 10" aria-hidden="true">
+                <line
+                  x1="2"
+                  y1="5"
+                  x2="38"
+                  y2="5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-dasharray="6 4"
+                />
+              </svg>
+              <span>Context-Zugriff</span>
+            </li>
+            <li class="legend-item">
+              <svg class="legend-edge" viewBox="0 0 40 10" aria-hidden="true">
+                <line
+                  x1="2"
+                  y1="5"
+                  x2="38"
+                  y2="5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-dasharray="2 4"
+                />
+              </svg>
+              <span>Router-Navigation</span>
+            </li>
+            <li class="legend-item">
+              <svg class="legend-edge" viewBox="0 0 40 10" aria-hidden="true">
+                <line
+                  x1="2"
+                  y1="5"
+                  x2="38"
+                  y2="5"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-dasharray="1 3"
+                />
+              </svg>
+              <span>Typ-Referenz</span>
+            </li>
+          </ul>
+        </section>
+
+        <section class="panel panel-hint">
+          <h2>Bedienung</h2>
+          <ul class="hint-list">
+            <li><kbd>Drag</kbd> zum Verschieben der Karte</li>
+            <li><kbd>Scroll</kbd> zum Zoomen</li>
+            <li><kbd>Klick</kbd> auf einen Knoten &rarr; Details rechts</li>
+            <li><kbd>Hover</kbd> hebt Verbindungen hervor</li>
+          </ul>
+        </section>
+      </aside>
+
+      <section class="canvas-wrapper" id="canvas-wrapper">
+        <div class="canvas-viewport" id="canvas-viewport">
+          <div class="canvas-stage" id="canvas-stage">
+            <svg
+              class="canvas-edges"
+              id="canvas-edges"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <defs>
+                <marker
+                  id="arrow-solid"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="8"
+                  markerHeight="8"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+                </marker>
+                <marker
+                  id="arrow-dashed"
+                  viewBox="0 0 10 10"
+                  refX="9"
+                  refY="5"
+                  markerWidth="8"
+                  markerHeight="8"
+                  orient="auto-start-reverse"
+                >
+                  <path d="M 0 0 L 10 5 L 0 10 z" fill="currentColor" />
+                </marker>
+              </defs>
+              <g id="edge-layer"></g>
+              <g id="edge-label-layer"></g>
+              <g id="particle-layer"></g>
+            </svg>
+            <div class="canvas-nodes" id="canvas-nodes"></div>
+          </div>
+        </div>
+
+        <div class="canvas-controls">
+          <button class="ctrl-btn" id="ctrl-zoom-in" title="Heranzoomen">
+            +
+          </button>
+          <button class="ctrl-btn" id="ctrl-zoom-out" title="Herauszoomen">
+            &minus;
+          </button>
+          <button class="ctrl-btn" id="ctrl-fit" title="Alles einpassen">
+            &#9713;
+          </button>
+        </div>
+
+        <div class="minimap" id="minimap" title="Minimap">
+          <svg id="minimap-svg" viewBox="0 0 200 150"></svg>
+          <div class="minimap-viewport" id="minimap-viewport"></div>
+        </div>
+
+        <div class="tour-banner" id="tour-banner" hidden>
+          <div class="tour-banner-inner">
+            <div class="tour-banner-text">
+              <span class="tour-step-badge" id="tour-step-badge">1/5</span>
+              <div>
+                <strong id="tour-step-title">Schritt</strong>
+                <p id="tour-step-description">Beschreibung</p>
+              </div>
+            </div>
+            <div class="tour-banner-controls">
+              <button class="btn btn-ghost btn-small" id="tour-prev">
+                &larr; Zurueck
+              </button>
+              <button class="btn btn-primary btn-small" id="tour-next">
+                Weiter &rarr;
+              </button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <aside class="side-right" id="side-right">
+        <section class="panel panel-detail" id="detail-panel">
+          <div class="detail-placeholder" id="detail-placeholder">
+            <div class="placeholder-icon">&#10149;</div>
+            <h2>Willkommen zur Architektur-Karte</h2>
+            <p>
+              Diese Anwendung ist eine kleine Nutzerverwaltung, die vier
+              wichtige React-Konzepte kombiniert: <strong>States</strong>,
+              <strong>Reducer</strong>, <strong>Context</strong> und
+              <strong>Router</strong>.
+            </p>
+            <p>
+              Klicke auf einen der farbigen Bloecke in der Karte, um eine
+              ausfuehrliche Erklaerung mit Code-Beispielen zu sehen. Oder starte
+              eine der
+              <strong>Szenario-Touren</strong> links, um den Datenfluss als
+              animierte Sequenz zu erleben.
+            </p>
+
+            <div class="quick-facts">
+              <div class="fact">
+                <span class="fact-num">21</span>
+                <span class="fact-label">Bausteine</span>
+              </div>
+              <div class="fact">
+                <span class="fact-num">4</span>
+                <span class="fact-label">Routen</span>
+              </div>
+              <div class="fact">
+                <span class="fact-num">3</span>
+                <span class="fact-label">Reducer-Actions</span>
+              </div>
+              <div class="fact">
+                <span class="fact-num">7</span>
+                <span class="fact-label">useFormInput-Aufrufe</span>
+              </div>
+            </div>
+
+            <div class="big-picture">
+              <h3>Das Big Picture</h3>
+              <p>
+                <strong>App.tsx</strong> ist die Zentrale. Sie haelt den
+                globalen Zustand &uuml;ber <strong>useReducer</strong>, gibt ihn
+                &uuml;ber <strong>UserContext</strong> an alle Kinder weiter und
+                rendert gleichzeitig den <strong>Router</strong> &mdash; damit
+                die einzelnen Views (Overview, Create, Edit) sowohl auf den
+                State zugreifen als auch per URL aufgerufen werden koennen.
+              </p>
+              <p>
+                Ein besonderes Detail ist der Custom Hook
+                <strong>useFormInput</strong>: Er wird in
+                <strong>UserForm</strong> sieben Mal aufgerufen &mdash; und doch
+                hat jedes Eingabefeld einen eigenen isolierten State. Das
+                funktioniert, weil React jeden Hook-Aufruf intern als eigenen
+                State-Slot speichert. Klicke auf den gruenen
+                <em>useFormInput</em>-Knoten in der Karte, um genau zu
+                verstehen, warum.
+              </p>
+            </div>
+          </div>
+          <div class="detail-content" id="detail-content" hidden></div>
+        </section>
+      </aside>
+    </main>
+
+    <div class="modal" id="glossar-modal" hidden>
+      <div class="modal-backdrop" data-close-modal></div>
+      <div
+        class="modal-dialog"
+        role="dialog"
+        aria-modal="true"
+        aria-labelledby="glossar-title"
+      >
+        <header class="modal-header">
+          <h2 id="glossar-title">
+            Glossar &mdash; Begriffe fuer Quereinsteiger
+          </h2>
+          <button class="modal-close" data-close-modal aria-label="Schliessen">
+            &times;
+          </button>
+        </header>
+        <div class="modal-body" id="glossar-body"></div>
+      </div>
+    </div>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
