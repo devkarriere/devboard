@@ -46,6 +46,7 @@ function parseArgs(argv) {
     name: null,
     root: process.cwd(),
     lernreise: null, // Pfad zum Lernreise-Manifest (Stufe 3)
+    touren: null, // Pfad zum Touren-Manifest (Szenario-Touren)
   };
   for (let i = 2; i < argv.length; i++) {
     const a = argv[i];
@@ -54,11 +55,13 @@ function parseArgs(argv) {
     else if (a === "--name") args.name = argv[++i];
     else if (a === "--root") args.root = path.resolve(argv[++i]);
     else if (a === "--lernreise") args.lernreise = argv[++i];
+    else if (a === "--touren" || a === "--tours") args.touren = argv[++i];
     else if (a === "-h" || a === "--help") {
       console.log(
         "Verwendung: node generate-skeleton.cjs " +
           "[--src src] [--out docs/architektur/architektur.json] " +
-          "[--name Projekt] [--root .] [--lernreise lernreise.json]",
+          "[--name Projekt] [--root .] [--lernreise lernreise.json] " +
+          "[--touren touren.json]",
       );
       process.exit(0);
     } else {
@@ -2511,6 +2514,85 @@ if (ARGS.lernreise) {
   lernreise = buildLernreise(manifest, nodes, edges);
 }
 
+// Validiert ein Touren-Manifest gegen die generierten Knoten und Kanten.
+// Jeder Schritt einer Tour referenziert Knoten-IDs und Edge-Tupel [from, to];
+// fehlende Referenzen werden gewarnt (nicht hart abgebrochen, damit Touren
+// auch waehrend einer Code-Refaktorierung lauffaehig bleiben).
+function buildTours(manifest, nodes, edges) {
+  const errors = [];
+  const warnings = [];
+  if (!manifest || typeof manifest.tours !== "object" || manifest.tours === null) {
+    return { tours: {}, errors, warnings };
+  }
+  const nodeIds = new Set(nodes.map((n) => n.id));
+  const edgeKeys = new Set(edges.map((e) => e.from + "->" + e.to));
+  const tours = {};
+  for (const [tourId, tour] of Object.entries(manifest.tours)) {
+    if (!tour || typeof tour !== "object") continue;
+    if (!Array.isArray(tour.steps)) {
+      warnings.push(`Tour "${tourId}" ohne steps - uebersprungen`);
+      continue;
+    }
+    const cleanedSteps = tour.steps.map((step, idx) => {
+      const stepNodes = Array.isArray(step.nodes) ? step.nodes : [];
+      const stepEdges = Array.isArray(step.edges) ? step.edges : [];
+      stepNodes.forEach((id) => {
+        if (!nodeIds.has(id)) {
+          warnings.push(
+            `Tour "${tourId}" Schritt ${idx + 1}: Knoten "${id}" existiert nicht in der Architektur`,
+          );
+        }
+      });
+      stepEdges.forEach((pair) => {
+        if (!Array.isArray(pair) || pair.length !== 2) {
+          warnings.push(
+            `Tour "${tourId}" Schritt ${idx + 1}: Edge ist kein [from, to]-Tupel`,
+          );
+          return;
+        }
+        const key = pair[0] + "->" + pair[1];
+        if (!edgeKeys.has(key)) {
+          warnings.push(
+            `Tour "${tourId}" Schritt ${idx + 1}: Edge ${key} existiert nicht`,
+          );
+        }
+      });
+      return {
+        title: step.title || "",
+        description: step.description || "",
+        nodes: stepNodes,
+        edges: stepEdges,
+      };
+    });
+    tours[tourId] = {
+      title: tour.title || tourId,
+      steps: cleanedSteps,
+    };
+  }
+  return { tours, errors, warnings };
+}
+
+let touren = { tours: {}, errors: [], warnings: [] };
+if (ARGS.touren) {
+  const manifestPath = path.resolve(PROJECT_ROOT, ARGS.touren);
+  if (!fs.existsSync(manifestPath)) {
+    console.error(
+      "[FEHLER] Touren-Manifest nicht gefunden: " + manifestPath,
+    );
+    process.exit(1);
+  }
+  let manifest;
+  try {
+    manifest = JSON.parse(fs.readFileSync(manifestPath, "utf-8"));
+  } catch (e) {
+    console.error(
+      "[FEHLER] Touren-Manifest konnte nicht geparst werden: " + e.message,
+    );
+    process.exit(1);
+  }
+  touren = buildTours(manifest, nodes, edges);
+}
+
 // --- Privatfelder strippen vor JSON-Output ------------------------------
 function stripPrivate(obj) {
   for (const k of Object.keys(obj)) {
@@ -2540,7 +2622,7 @@ const output = {
   nodes,
   edges,
   steps: lernreise.steps,
-  tours: {},
+  tours: touren.tours,
   glossary: [],
 };
 
@@ -2681,6 +2763,32 @@ if (ARGS.lernreise) {
   if (lernreise.errors && lernreise.errors.length > 0) {
     console.log("  [FEHLER]");
     for (const e of lernreise.errors) console.log("    - " + e);
+    process.exitCode = 2;
+  }
+}
+
+if (ARGS.touren) {
+  const tourIds = Object.keys(touren.tours);
+  console.log("  Touren:         " + tourIds.length + " Szenario-Touren");
+  for (const tid of tourIds) {
+    const t = touren.tours[tid];
+    console.log(
+      "    " +
+        tid.padEnd(20) +
+        " (" +
+        t.title.substring(0, 36).padEnd(36) +
+        ") " +
+        t.steps.length +
+        " Schritte",
+    );
+  }
+  if (touren.warnings && touren.warnings.length > 0) {
+    console.log("  [TOUREN-WARNUNGEN]");
+    for (const w of touren.warnings) console.log("    - " + w);
+  }
+  if (touren.errors && touren.errors.length > 0) {
+    console.log("  [TOUREN-FEHLER]");
+    for (const e of touren.errors) console.log("    - " + e);
     process.exitCode = 2;
   }
 }

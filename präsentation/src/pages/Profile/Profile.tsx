@@ -10,6 +10,12 @@ import {
 import { Input } from "../../components/ui/input"
 import { UserNameContext } from "../../context/UserNameContext"
 
+/**
+ * @arch-badge Route /profile
+ * @arch-subtitle Benutzername-Formular
+ * @arch-summary Erlaubt dem Nutzer, seinen Anzeigenamen zu setzen; schreibt ihn in den UserNameContext und in localStorage.
+ * @arch-step 1
+ */
 export default function Profile() {
   const context = useContext(UserNameContext)
   const [username, setUsername] = useState(context?.userName ?? "")

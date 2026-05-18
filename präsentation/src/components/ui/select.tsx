@@ -4,6 +4,11 @@ import { Select as SelectPrimitive } from "radix-ui"
 import { cn } from "@/lib/utils"
 import { ChevronDownIcon, CheckIcon, ChevronUpIcon } from "lucide-react"
 
+/**
+ * @arch-badge UI-Primitive
+ * @arch-subtitle shadcn Select (Radix-basiert)
+ * @arch-summary Tastatur-zugänglicher Dropdown; in TaskDialog für die Personen-Zuweisung verwendet.
+ */
 function Select({
   ...props
 }: React.ComponentProps<typeof SelectPrimitive.Root>) {

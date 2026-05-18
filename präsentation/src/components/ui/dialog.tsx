@@ -5,6 +5,11 @@ import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import { XIcon } from "lucide-react"
 
+/**
+ * @arch-badge UI-Primitive
+ * @arch-subtitle shadcn Dialog (Radix-basiert)
+ * @arch-summary Modal-Dialog mit Portal, Overlay, Header / Footer / Title / Description und automatischem Close-Button.
+ */
 function Dialog({
   ...props
 }: React.ComponentProps<typeof DialogPrimitive.Root>) {

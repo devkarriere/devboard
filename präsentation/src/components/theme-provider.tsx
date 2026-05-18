@@ -1,4 +1,5 @@
 /* eslint-disable react-refresh/only-export-components */
+/** @arch-skip */
 import * as React from "react"
 
 type Theme = "dark" | "light" | "system"
@@ -77,6 +78,11 @@ function isEditableTarget(target: EventTarget | null) {
   return false
 }
 
+/**
+ * @arch-badge Provider
+ * @arch-subtitle Dark/Light/System-Theme mit Persistenz und Tastatur-Toggle
+ * @arch-summary Verwaltet das aktive Theme, persistiert es in localStorage, reagiert auf System-Änderungen und schaltet via "D"-Taste um.
+ */
 export function ThemeProvider({
   children,
   defaultTheme = "system",

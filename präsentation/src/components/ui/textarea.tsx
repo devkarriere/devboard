@@ -2,6 +2,11 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * @arch-badge UI-Primitive
+ * @arch-subtitle shadcn Textarea mit field-sizing
+ * @arch-summary Mehrzeiliges Eingabefeld; nutzt field-sizing-content für automatische Höhen-Anpassung an den Inhalt.
+ */
 function Textarea({ className, ...props }: React.ComponentProps<"textarea">) {
   return (
     <textarea

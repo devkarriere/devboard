@@ -10,6 +10,11 @@ import { cn } from "@/lib/utils"
 import { Button, buttonVariants } from "@/components/ui/button"
 import { ChevronLeftIcon, ChevronRightIcon, ChevronDownIcon } from "lucide-react"
 
+/**
+ * @arch-badge UI-Primitive
+ * @arch-subtitle shadcn Calendar (react-day-picker)
+ * @arch-summary Datepicker auf Basis von react-day-picker; in TaskDialog im Popover zur Deadline-Auswahl eingesetzt.
+ */
 function Calendar({
   className,
   classNames,

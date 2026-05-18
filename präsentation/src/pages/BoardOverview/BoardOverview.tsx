@@ -17,6 +17,12 @@ import { useBoardOverviewReducer } from "../../hooks/boardsOverviewReducer"
 import { getBoards } from "../../lib/api"
 import type { Board } from "../../types/board.type"
 
+/**
+ * @arch-badge Route /boards
+ * @arch-subtitle Liste aller Boards · Container
+ * @arch-summary Lädt alle Boards beim Mount aus localStorage und erlaubt das Anlegen/Löschen einzelner Boards via Reducer.
+ * @arch-step 1
+ */
 export default function BoardOverview() {
   const [boards, boardsDispatch] = useReducer(
     useBoardOverviewReducer,

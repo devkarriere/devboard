@@ -5,6 +5,12 @@ import type { Task } from "../../../types/board.type"
 import { useState } from "react"
 import TaskDialog from "./TaskDialog"
 
+/**
+ * @arch-badge Komponente
+ * @arch-subtitle Spalte (ToDo / Progress / Done) als Drop-Zone
+ * @arch-summary Rendert alle Tasks ihrer Spalte und nimmt per HTML5-Drag-and-Drop Tasks aus anderen Spalten entgegen.
+ * @arch-step 3
+ */
 export default function BoardColumn({
   title,
   tasks,

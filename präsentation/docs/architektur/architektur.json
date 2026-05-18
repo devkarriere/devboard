@@ -1,7 +1,7 @@
 {
   "$schema": "./schema/architektur.schema.json",
   "project": {
-    "name": "präsentation copy",
+    "name": "präsentation",
     "root": "src/",
     "stack": []
   },
@@ -35,6 +35,11 @@
       "id": "types",
       "label": "Typen",
       "tint": "rgba(138, 148, 163, 0.07)"
+    },
+    {
+      "id": "external",
+      "label": "Browser-API",
+      "tint": "rgba(200, 200, 200, 0.06)"
     }
   ],
   "nodes": [
@@ -42,27 +47,27 @@
       "id": "app",
       "type": "entry",
       "title": "App",
-      "badge": "Router-Setup",
+      "badge": "Router-Root",
       "path": "src/App.tsx",
       "group": "entry",
-      "summary": "Erzeugt den Browser-Router mit Profil-, Boards-Index- und Boards-Detail-Route und rendert sie ueber den persistenten Layout-Outlet.",
+      "summary": "Definiert alle App-Routen über createBrowserRouter und umhüllt sie mit dem UserNameProvider.",
       "sections": [
         {
-          "title": "Routen-Definition",
-          "body": "<p>Die App benutzt <code>createBrowserRouter</code> von <code>react-router-dom</code>. Alle Routen sind als verschachtelter Baum unter der Wurzel-Route definiert. Die Wurzel rendert <code>&lt;Layout/&gt;</code> und stellt damit Header und <code>&lt;Outlet/&gt;</code> bereit; die untergeordneten Routen tauschen nur den Outlet-Inhalt aus.</p>"
+          "title": "Was passiert hier?",
+          "body": "<p><code>App</code> ist die <strong>Wurzel der Route-Konfiguration</strong>. Sie definiert mit <code>createBrowserRouter</code> einen Routen-Baum: das <code>Layout</code> als persistente App-Shell und darunter verschachtelte Kinder für <code>/profile</code> und <code>/boards</code>. Der <code>:id</code>-Parameter unter <code>/boards/:id</code> adressiert ein konkretes Board und wird in <code>BoardDetail</code> via <code>useParams()</code> ausgelesen.</p>"
         },
         {
           "title": "Routen-Baum",
-          "code": "[\n  {\n    path: \"/\",\n    element: <Layout />,\n    children: [\n      { path: \"/profile\", element: <Profile /> },\n      {\n        path: \"/boards\",\n        children: [\n          { index: true, element: <BoardOverview /> },\n          { path: \":id\", element: <BoardDetail /> },\n        ],\n      },\n    ],\n  },\n]"
+          "code": "{\n  path: \"/\",\n  element: <Layout />,\n  children: [\n    { path: \"/profile\", element: <Profile /> },\n    {\n      path: \"/boards\",\n      children: [\n        { index: true, element: <BoardOverview /> },\n        { path: \":id\", element: <BoardDetail /> },\n      ],\n    },\n  ],\n}"
         },
         {
-          "title": "Merke",
-          "callout": "Der Pfad <code>/boards</code> ist eine <strong>Index-Route</strong> mit Kindern - <code>index: true</code> macht <code>BoardOverview</code> zur Default-View, <code>:id</code> ist ein <strong>Parameter</strong>, den <code>BoardDetail</code> mit <code>useParams()</code> ausliest."
+          "title": "Warum der UserNameProvider aussen?",
+          "callout": "Der <code>UserNameProvider</code> umhüllt den <code>RouterProvider</code>, <strong>nicht</strong> umgekehrt. So bleibt der Benutzername bei Routen-Wechseln erhalten — der Provider montiert sich nicht ab, der Outlet-Inhalt schon."
         }
       ],
-      "subtitle": "Definiert alle Routen und hängt sie an das Layout",
+      "subtitle": "Routen-Definition + globaler UserName-Provider",
       "position": {
-        "x": 1580,
+        "x": 993,
         "y": 116,
         "w": 220,
         "h": 78
@@ -75,12 +80,12 @@
       "badge": "Komponente",
       "path": "src/components/layout/Header.tsx",
       "group": "components",
-      "summary": "Statischer Header mit zwei `<Link>`-Eintraegen zu `/boards` und `/profile`.",
+      "summary": "Statische Header-Leiste mit Links zur Board-Übersicht und zur Profil-Seite.",
       "sections": [],
-      "subtitle": "Navigation: Boards und Profil",
+      "subtitle": "Top-Navigation: Boards & Profil",
       "position": {
-        "x": 1138,
-        "y": 116,
+        "x": 116,
+        "y": 564,
         "w": 220,
         "h": 78
       }
@@ -92,25 +97,58 @@
       "badge": "Layout",
       "path": "src/components/layout/Layout.tsx",
       "group": "routing",
-      "summary": "Rendert den Header und einen `<Outlet/>`, in den der React-Router je nach Route den Page-Inhalt einsetzt.",
+      "summary": "Header oben, Outlet wechselt je nach aktiver Route den Seiten-Inhalt.",
+      "sections": [],
+      "subtitle": "Persistente App-Shell mit Outlet",
+      "position": {
+        "x": 406,
+        "y": 116,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "usernamecontext",
+      "type": "state",
+      "title": "UserNameContext",
+      "badge": "State",
+      "path": "src/context/UserNameContext.tsx",
+      "group": "state",
+      "summary": "",
       "sections": [
         {
-          "title": "Persistente App-Shell",
-          "body": "<p><code>Layout</code> ist die <em>einzige</em> Komponente, die ueber alle Routen hinweg gerendert bleibt. Header oben, ein <code>&lt;main&gt;</code> mit <code>&lt;Outlet/&gt;</code> darunter - der <code>Outlet</code> ist der Platzhalter, in den React-Router je nach aktiver Route den passenden Page-Inhalt einsetzt.</p>"
+          "title": "Wozu Context?",
+          "body": "<p>Der Benutzername wird in der <strong>Profil-Seite</strong> gesetzt und in der <strong>Task-Zuweisung</strong> (TaskDialog) gelesen — beide liegen in völlig verschiedenen Teilbäumen der Routen. Statt den Wert via Props durch jede Ebene zu reichen (\"Prop-Drilling\"), stellt der Context ihn über <code>useContext(UserNameContext)</code> direkt am Konsumenten bereit.</p>"
         },
         {
-          "title": "Outlet-Pattern",
-          "code": "<div>\n  <Header />\n  <main className=\"container mx-auto py-4\">\n    <Outlet />\n  </main>\n</div>"
+          "title": "Trennung von Definition und State",
+          "body": "<pre><code>export const UserNameContext = createContext&lt;UserNameContextType | null&gt;(null)</code></pre><p>Die <code>.tsx</code>-Datei exportiert nur den <strong>Context selbst</strong>. Der State (<code>useState</code>) liegt im <code>UserNameProvider</code>. Diese Aufteilung erlaubt Fast-Refresh und hält die Verantwortung pro Datei klar.</p>"
         },
         {
           "title": "Merke",
-          "callout": "Alles, was <strong>ueberall sichtbar</strong> sein soll (Header, Sidebar, Toast-Container), gehoert hier rein. Alles, was <strong>routenabhaengig</strong> ist, kommt durch den <code>&lt;Outlet/&gt;</code>."
+          "callout": "Context hat einen Default-Wert (hier <code>null</code>). Konsumenten müssen mit dem Null-Fall umgehen — <code>context?.userName ?? \"\"</code>. Vergisst man das, crashed die Komponente ausserhalb eines Providers."
         }
       ],
-      "subtitle": "Persistente Shell: Header oben, Outlet darunter",
       "position": {
-        "x": 551,
-        "y": 116,
+        "x": 1870,
+        "y": 633,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "usernameprovider",
+      "type": "component",
+      "title": "UserNameProvider",
+      "badge": "Provider",
+      "path": "src/context/UserNameProvider.tsx",
+      "group": "components",
+      "summary": "Hält den Benutzernamen, initialisiert ihn beim Mount aus localStorage und stellt ihn via Context bereit.",
+      "sections": [],
+      "subtitle": "UserName-State mit Initial-Load aus localStorage",
+      "position": {
+        "x": 406,
+        "y": 564,
         "w": 220,
         "h": 78
       }
@@ -119,28 +157,31 @@
       "id": "boarddetailreducer",
       "type": "state",
       "title": "useBoardDetailReducer",
-      "badge": "Reducer",
+      "badge": "State",
       "path": "src/hooks/boardDetailReducer.ts",
       "group": "state",
-      "summary": "Verwaltet UPDATE_BOARD_NAME / ADD_TASK / DELETE_TASK / UPDATE_TASK und persistiert nach jeder Mutation via `saveBoard` ins localStorage.",
+      "summary": "",
       "sections": [
         {
-          "title": "Reducer fuer ein Board",
-          "body": "<p><code>(prevState, action) =&gt; newState</code> ohne Seiteneffekte - bis auf einen: am Ende ruft der Reducer <code>saveBoard(newState)</code> und persistiert in den localStorage. So bleibt die Quelle der Wahrheit zentral: jede Mutation am Board geht durch genau diese Funktion.</p><p>Vier Action-Typen sind moeglich:</p><ul><li><code>UPDATE_BOARD_NAME</code> - aendert nur den Titel.</li><li><code>ADD_TASK</code> - haengt eine Task an <code>tasks</code> an.</li><li><code>DELETE_TASK</code> - filtert eine Task per <code>id</code> raus.</li><li><code>UPDATE_TASK</code> - ersetzt eine Task durch ein neues Objekt.</li></ul>"
+          "title": "Reducer-Pattern",
+          "body": "<p><code>(prevState, action) =&gt; newState</code> — eine pure Funktion ohne Seiteneffekte. Bis auf <strong>einen</strong>: nach jeder Mutation wird <code>saveBoard(newState)</code> aufgerufen, das den Stand in localStorage schreibt. So bleibt die Persistenz an einer einzigen Stelle gebündelt.</p>"
         },
         {
           "title": "Action-Typen",
-          "code": "type BoardDetailAction =\n  | { type: \"UPDATE_BOARD_NAME\"; data: string }\n  | { type: \"ADD_TASK\" | \"DELETE_TASK\" | \"UPDATE_TASK\"; data: Task }"
+          "code": "type BoardDetailAction =\n  | { type: \"UPDATE_BOARD_NAME\"; data: string }\n  | { type: \"ADD_TASK\" | \"DELETE_TASK\" | \"UPDATE_TASK\"; data: Task }\n  | { type: \"UPDATE_TASK_STATUS\"; data: { id: string; newColumn: \"ToDo\" | \"Progress\" | \"Done\" } }"
+        },
+        {
+          "title": "Discriminated Union",
+          "body": "<p>Die <code>type</code>-Eigenschaft trennt die Action-Varianten — TypeScript verengt im <code>switch</code>-Block automatisch den Typ von <code>action.data</code>. So passt <code>UPDATE_BOARD_NAME</code> mit <code>string</code> als Daten und <code>ADD_TASK</code> mit einem <code>Task</code>-Objekt in einen einzigen Reducer.</p>"
         },
         {
           "title": "Merke",
-          "callout": "Der <code>saveBoard</code>-Aufruf steht <strong>im Reducer</strong>, nicht in den Views. Eine zentrale Stelle, die nach jeder Mutation schreibt - keine Sync-Probleme zwischen UI-Aktionen und Persistenz."
+          "callout": "Persistenz steht im <strong>Reducer</strong>, nicht in den Views. Eine zentrale Stelle, die nach jeder Mutation schreibt — keine Sync-Probleme zwischen Views."
         }
       ],
-      "subtitle": "Pure (state, action) → state fuer ein Board + Persistenz",
       "position": {
         "x": 1870,
-        "y": 564,
+        "y": 495,
         "w": 220,
         "h": 78
       }
@@ -149,28 +190,14 @@
       "id": "boardsoverviewreducer",
       "type": "state",
       "title": "useBoardOverviewReducer",
-      "badge": "Reducer",
+      "badge": "State",
       "path": "src/hooks/boardsOverviewReducer.ts",
       "group": "state",
-      "summary": "Verwaltet ADD / DELETE auf der Liste aller Boards und persistiert das Ergebnis via `saveBoards` ins localStorage.",
-      "sections": [
-        {
-          "title": "Reducer fuer die Boards-Liste",
-          "body": "<p>Verwaltet das Array aller Boards (<code>Board[]</code>) - im Gegensatz zum [[boarddetailreducer]] geht es hier um die <em>Liste</em>, nicht um den Inhalt eines Boards. Zwei Action-Typen sind moeglich:</p><ul><li><code>ADD</code> - haengt ein neues Board an die Liste an.</li><li><code>DELETE</code> - entfernt ein Board per <code>id</code>.</li></ul><p>Nach jeder Mutation persistiert der Reducer die gesamte Liste via <code>saveBoards</code> in den localStorage.</p>"
-        },
-        {
-          "title": "Initial-State via Lazy-Init",
-          "code": "const [boards, boardsDispatch] = useReducer(\n  useBoardOverviewReducer,\n  [],\n  getBoards,            // Initializer: laedt aus localStorage\n)"
-        },
-        {
-          "title": "Merke",
-          "callout": "Der dritte Parameter von <code>useReducer</code> ist eine <strong>Lazy-Init-Funktion</strong>: sie laeuft genau einmal und liest den initialen State - hier aus dem localStorage. So muss <code>getBoards()</code> nicht bei jedem Render aufgerufen werden."
-        }
-      ],
-      "subtitle": "Pure (state, action) → state fuer die Boards-Liste",
+      "summary": "",
+      "sections": [],
       "position": {
-        "x": 1580,
-        "y": 564,
+        "x": 2160,
+        "y": 495,
         "w": 220,
         "h": 78
       }
@@ -182,11 +209,10 @@
       "badge": "Entry",
       "path": "src/main.tsx",
       "group": "entry",
-      "summary": "Haengt die App-Komponente in `<StrictMode>` und `<ThemeProvider>` eingebettet an das DOM-Element mit der id `root`.",
+      "summary": "",
       "sections": [],
-      "subtitle": "Einstiegspunkt: mountet App in #root",
       "position": {
-        "x": 1870,
+        "x": 1283,
         "y": 116,
         "w": 220,
         "h": 78
@@ -199,24 +225,24 @@
       "badge": "Route /boards/:id",
       "path": "src/pages/BoardDetail/BoardDetail.tsx",
       "group": "views",
-      "summary": "Holt das Board ueber `useParams` + `getBoardById`, haelt seinen State mit `useBoardDetailReducer` und verteilt die Tasks per `column`-Filter auf drei `BoardColumn`-Spalten.",
+      "summary": "Lädt das Board zur URL-ID, verwaltet Tasks via useReducer und verteilt sie auf die Spalten ToDo / Progress / Done.",
       "sections": [
         {
-          "title": "Container-View fuer ein Board",
-          "body": "<p>Drei Aufgaben gleichzeitig:</p><ol><li><strong>Board laden</strong> - <code>useParams()</code> liefert die <code>:id</code> aus der URL, <code>getBoardById</code> holt das Board aus dem localStorage.</li><li><strong>State halten</strong> - <code>useReducer(useBoardDetailReducer, board)</code> macht das Board mutationsfaehig; alle Aenderungen laufen ueber den Reducer.</li><li><strong>Drei Spalten rendern</strong> - <code>board.tasks</code> wird per <code>column</code>-Filter in ToDo / Progress / Done aufgeteilt und an je eine <code>BoardColumn</code> gereicht.</li></ol>"
+          "title": "Drei Spalten, ein Reducer",
+          "body": "<p><code>BoardDetail</code> rendert drei <code>BoardColumn</code>-Instanzen (ToDo / Progress / Done) und filtert die Tasks pro Spalte. Alle Mutationen — Task hinzufügen, löschen, verschieben, umbenennen — gehen über <strong>einen</strong> zentralen Reducer. Die Spalten erhalten Callbacks (<code>handleAddTask</code>, <code>handleDeleteTask</code>, ...), die intern <code>dispatchBoard(...)</code> aufrufen.</p>"
         },
         {
-          "title": "Verteilung der Tasks auf Spalten",
-          "code": "<BoardColumn\n  title=\"ToDo\"\n  tasks={board.tasks.filter((task) => task.column === \"ToDo\")}\n  ...\n/>"
+          "title": "Filterung statt drei separater Listen",
+          "body": "<pre><code>&lt;BoardColumn\n  title=\"ToDo\"\n  tasks={board.tasks.filter((task) =&gt; task.column === \"ToDo\")}\n  onAddTask={handleAddTask}\n  onDeleteTask={handleDeleteTask}\n  onUpdateTaskStatus={handleUpdateTaskStatus}\n  handleEditTask={handleEditTask}\n/&gt;</code></pre><p>Die Tasks liegen als <strong>eine flache Liste</strong> im Board-State; jede Task trägt ihre <code>column</code>-Spalten-Zugehörigkeit. Beim Rendern wird gefiltert. So vereinfacht ein Status-Wechsel sich zu einem einzigen Feld-Update.</p>"
         },
         {
           "title": "Merke",
-          "callout": "Die Tasks liegen <strong>flach</strong> im Board, jede Task traegt ihre Spalte selbst. Die Spalten-Komponente ist eine reine <em>View</em> - das Datenmodell hat keine getrennten Listen pro Spalte."
+          "callout": "Edit-Dialog wird mit einem <code>key={editTask?.id ?? \"empty-0\"}</code> neu instanziiert. Das <strong>resettet</strong> den internen Form-State des Dialogs jedes Mal, wenn eine andere Task bearbeitet wird — keine manuellen <code>setX</code> nötig."
         }
       ],
-      "subtitle": "Container-View: drei Spalten + Board-Titel-Edit",
+      "subtitle": "Drei-Spalten-Board · Container",
       "position": {
-        "x": 696,
+        "x": 848,
         "y": 426,
         "w": 220,
         "h": 78
@@ -229,24 +255,24 @@
       "badge": "Komponente",
       "path": "src/pages/BoardDetail/components/BoardColumn.tsx",
       "group": "views",
-      "summary": "Rendert alle Tasks der Spalte, oeffnet den `TaskDialog` zum Anlegen und reagiert ueber `onDragEnter`/`onDrop` auf gezogene Karten.",
+      "summary": "Rendert alle Tasks ihrer Spalte und nimmt per HTML5-Drag-and-Drop Tasks aus anderen Spalten entgegen.",
       "sections": [
         {
-          "title": "Spalte + Drop-Zone",
-          "body": "<p>Die Spalte rendert ihre Tasks und doppelt als <strong>Drop-Ziel</strong> fuer drag-and-drop verschiebbare <code>TaskCard</code>s. Beim <code>onDragEnter</code>/<code>onDragOver</code> liest sie die <em>Quell-Spalte</em> aus dem <code>dataTransfer</code> und zeigt nur dann den blau gestrichelten \"Hier ablegen\"-Hinweis an, wenn die Karte <em>nicht</em> schon in dieser Spalte ist.</p>"
+          "title": "Drag-and-Drop über Daten-Typen",
+          "body": "<p>Statt <code>dataTransfer.setData(\"column\", value)</code> (ein einzelner Schlüssel) werden hier <strong>mehrere Einträge als Typ-Strings</strong> abgelegt: <code>column-ToDo</code>, <code>id-abc123</code>. Beim Drop iteriert die Spalte über <code>event.dataTransfer.types</code> und liest die Werte aus den Präfixen.</p><pre><code>function getColumnFromDraggedItem(dataTransfer: DataTransfer): string | null {\n  let column: string | null = null\n  dataTransfer.types.forEach((type) =&gt; {\n    if (type.startsWith(\"column-\")) {\n      column = type.replace(\"column-\", \"\")\n    }\n  })\n  return column\n}</code></pre>"
         },
         {
-          "title": "Drop-Zone-Logik",
-          "code": "function handleDragHover(event: React.DragEvent<HTMLDivElement>) {\n  const column = event.dataTransfer.getData(\"column\")\n  if (isTaskInTasks(column)) {\n    setIsDragHover(false)\n  } else {\n    setIsDragHover(true)\n  }\n}"
+          "title": "Drop-Akzeptanz",
+          "body": "<p>Eine Spalte akzeptiert nur Tasks aus <strong>anderen</strong> Spalten — <code>isTaskInTasks(column)</code> vergleicht die Quell-Spalte mit dem eigenen Titel. So zeigt die \"Hier ablegen\"-Markierung nicht auf, wenn man eine Task auf ihre eigene Spalte zieht.</p>"
         },
         {
-          "title": "Stolperfalle",
-          "callout": "Im aktuellen Stand ist der <code>handleDrop</code>-Pfad fuer den Spaltenwechsel noch leer (<code>//CALL FUNCTION TO MOVE TASK TO THIS COLUMN</code>) - das visuelle Feedback funktioniert, aber die Task wechselt die Spalte noch nicht. Hier muesste ein <code>dispatchBoard({ type: \"UPDATE_TASK\", data: { ...task, column: title } })</code> rein."
+          "title": "Merke",
+          "callout": "<code>event.preventDefault()</code> im <code>onDragOver</code> ist Pflicht — ohne diesen Aufruf feuert <code>onDrop</code> schlicht nicht. Eine der häufigsten Stolperfallen bei HTML5-DnD."
         }
       ],
-      "subtitle": "Eine Spalte (ToDo / Progress / Done) mit Drop-Zone + Add-Dialog",
+      "subtitle": "Spalte (ToDo / Progress / Done) als Drop-Zone",
       "position": {
-        "x": 406,
+        "x": 1138,
         "y": 564,
         "w": 220,
         "h": 78
@@ -259,11 +285,11 @@
       "badge": "Komponente",
       "path": "src/pages/BoardDetail/components/TaskCard.tsx",
       "group": "views",
-      "summary": "Rendert Titel, Beschreibung und Deadline einer Task; setzt beim Drag-Start die Quell-Spalte in `dataTransfer`, ruft `handleEditTask` bei Klick auf.",
+      "summary": "Zeigt Titel, Beschreibung, Zuweisung und Deadline einer Task; Click öffnet den Edit-Dialog, Drag startet den Spaltenwechsel.",
       "sections": [],
-      "subtitle": "Draggable Task-Eintrag mit Edit-Klick und Loeschen-Button",
+      "subtitle": "Draggable Task-Kachel",
       "position": {
-        "x": 696,
+        "x": 1428,
         "y": 564,
         "w": 220,
         "h": 78
@@ -276,25 +302,25 @@
       "badge": "Komponente",
       "path": "src/pages/BoardDetail/components/TaskDialog.tsx",
       "group": "views",
-      "summary": "Buendelt vier Form-Felder (Titel, Beschreibung, Zuweisung, Deadline) im lokalen State und ruft `onSubmitUpdate` mit der aktualisierten Task auf.",
+      "summary": "Bündelt Titel-, Beschreibung-, Zuweisungs- und Deadline-Felder; reicht die zusammengesetzte Task per Callback nach oben.",
       "sections": [
         {
-          "title": "Form-State im Dialog",
-          "body": "<p>Der Dialog haelt vier eigenstaendige State-Slots fuer die Eingabefelder (Titel, Beschreibung, Zugewiesene-Person, Deadline). Beim Speichern baut er aus diesen Slots + der unveraenderten <code>task.id</code> + <code>task.column</code> ein neues Task-Objekt und ruft <code>onSubmitUpdate</code> damit auf. So bleibt der Reducer ahnungslos, <em>wie</em> das Formular intern aussieht.</p>"
+          "title": "Form mit lokalem State",
+          "body": "<p>Der Dialog hält <strong>vier eigene useState-Felder</strong> (Titel, Beschreibung, Zuweisung, Datum), initialisiert aus der <code>task</code>-Prop. Erst beim Klick auf \"Speichern\" wird die zusammengesetzte Task per <code>onSubmitUpdate(updatedTask)</code> nach oben gereicht — der Parent (BoardDetail / BoardColumn) entscheidet, ob das ein <code>ADD_TASK</code>- oder <code>UPDATE_TASK</code>-Dispatch wird.</p>"
         },
         {
-          "title": "Initial-Werte aus dem Prop",
-          "code": "const [taskTitle, setTaskTitle] = useState<string>(task.title)\nconst [taskDescription, setTaskDescription] = useState<string>(\n  task.description ?? \"\"\n)\nconst [date, setDate] = useState<Date | undefined>(\n  task.deadline ? new Date(task.deadline) : undefined\n)"
+          "title": "Wiederverwendung für \"Anlegen\" und \"Bearbeiten\"",
+          "body": "<pre><code>&lt;TaskDialog\n  title=\"Task bearbeiten\"\n  description=\"Bearbeite die ausgewählte Aufgabe.\"\n  task={editTask ?? { id: \"\", title: \"abc\", description: \"\", column: \"ToDo\" }}\n  onSubmitUpdate={handleUpdateTask}\n  ...\n/&gt;</code></pre><p>Derselbe Dialog wird zweimal verwendet — einmal von der Spalte (<code>Neue Task erstellen</code> mit leerer Task) und einmal von BoardDetail (<code>Task bearbeiten</code> mit <code>editTask</code>). Titel, Beschreibung und Callback machen den Unterschied.</p>"
         },
         {
           "title": "Merke",
-          "callout": "Damit der Dialog beim Bearbeiten einer <em>anderen</em> Task wirklich neue Werte zeigt, gibt <code>BoardDetail</code> ihm einen <code>key={editTask?.id}</code> mit. Der Key-Wechsel zwingt React zum Remount - und damit zum neuen <code>useState</code>-Init."
+          "callout": "Die Personen-Zuweisung kommt aus dem <code>UserNameContext</code> — der Dialog \"weiss\" damit ohne Prop-Drilling, welchen Benutzernamen er als Option anbieten muss."
         }
       ],
-      "subtitle": "Modal zum Erstellen / Bearbeiten einer Task",
+      "subtitle": "Modal-Formular: Task anlegen oder bearbeiten",
       "position": {
-        "x": 406,
-        "y": 426,
+        "x": 848,
+        "y": 564,
         "w": 220,
         "h": 78
       }
@@ -306,25 +332,25 @@
       "badge": "Route /boards",
       "path": "src/pages/BoardOverview/BoardOverview.tsx",
       "group": "views",
-      "summary": "Liest Boards aus dem localStorage via `getBoards`, verwaltet sie mit `useBoardOverviewReducer` und rendert pro Board eine `BoardCard`.",
+      "summary": "Lädt alle Boards beim Mount aus localStorage und erlaubt das Anlegen/Löschen einzelner Boards via Reducer.",
       "sections": [
         {
-          "title": "Container-View fuer die Boards-Liste",
-          "body": "<p>Verbindet drei Bausteine zu einer Seite:</p><ul><li><strong>State</strong> via [[boardsoverviewreducer]] - laedt initial alle Boards aus dem localStorage, fuehrt <code>ADD</code>/<code>DELETE</code> aus.</li><li><strong>UI</strong> via <code>Dialog</code> + <code>Input</code> - der Anlegen-Dialog liest den Board-Namen in einen lokalen <code>useState</code>-Slot.</li><li><strong>Liste</strong> via <code>BoardCard.map(...)</code> - eine Karte pro Board, mit Klick zum Detail und Loeschen-Button.</li></ul>"
+          "title": "Container-Komponente",
+          "body": "<p><code>BoardOverview</code> ist eine <strong>Container-Komponente</strong>: sie hält den State (Boards-Liste, neuer Board-Name) und delegiert die reine Darstellung an <code>BoardCard</code>. Die Mutationen laufen über <code>useReducer</code> mit dem <code>useBoardOverviewReducer</code> — die Komponente weiss nichts über localStorage.</p>"
         },
         {
-          "title": "Reducer + Lazy-Init in einem Aufruf",
-          "code": "const [boards, boardsDispatch] = useReducer(\n  useBoardOverviewReducer,\n  [],\n  getBoards,\n)"
+          "title": "Lazy Init aus localStorage",
+          "body": "<pre><code>const [boards, boardsDispatch] = useReducer(\n  useBoardOverviewReducer,\n  [],\n  getBoards\n)</code></pre><p>Das dritte Argument von <code>useReducer</code> ist eine <strong>Init-Funktion</strong> — sie wird nur beim ersten Render aufgerufen. So lesen wir genau einmal aus localStorage und sparen uns einen <code>useEffect</code>.</p>"
         },
         {
           "title": "Merke",
-          "callout": "Der <strong>Dispatch</strong> kommt aus dem Reducer und wird an <code>handleAddNewBoard</code> / <code>handleDeleteBoard</code> gereicht. Diese Handler bauen Action-Objekte und uebergeben sie - so bleibt die Komponente <em>daten-deklarativ</em>, nicht mutativ."
+          "callout": "<code>useReducer(reducer, initialArg, init)</code>: wenn <code>init</code> eine teure Berechnung ist (hier: localStorage-Zugriff), nutze die Drei-Argument-Form — sie läuft <strong>nicht</strong> bei jedem Render."
         }
       ],
-      "subtitle": "Container-View: Boards-Liste + Neu-anlegen-Dialog",
+      "subtitle": "Liste aller Boards · Container",
       "position": {
-        "x": 116,
-        "y": 702,
+        "x": 1428,
+        "y": 426,
         "w": 220,
         "h": 78
       }
@@ -336,12 +362,12 @@
       "badge": "Komponente",
       "path": "src/pages/BoardOverview/components/BoardCard.tsx",
       "group": "views",
-      "summary": "Rendert eine Karte mit Board-Titel, Task-Anzahl, Loeschen-Button und verlinkt auf `/boards/:id`.",
+      "summary": "Zeigt Board-Titel & Task-Anzahl, verlinkt auf die Detail-Route und stellt einen Lösch-Button bereit.",
       "sections": [],
-      "subtitle": "Klickbarer Board-Eintrag in der Boards-Uebersicht",
+      "subtitle": "Vorschau-Kachel eines Boards",
       "position": {
-        "x": 116,
-        "y": 564,
+        "x": 1138,
+        "y": 426,
         "w": 220,
         "h": 78
       }
@@ -353,12 +379,12 @@
       "badge": "Route /profile",
       "path": "src/pages/Profile/Profile.tsx",
       "group": "views",
-      "summary": "Haelt den Username im lokalen `useState`-Slot - Persistenz noch nicht angebunden.",
+      "summary": "Erlaubt dem Nutzer, seinen Anzeigenamen zu setzen; schreibt ihn in den UserNameContext und in localStorage.",
       "sections": [],
-      "subtitle": "Einfaches Formular fuer den Benutzernamen",
+      "subtitle": "Benutzername-Formular",
       "position": {
-        "x": 116,
-        "y": 426,
+        "x": 848,
+        "y": 702,
         "w": 220,
         "h": 78
       }
@@ -370,12 +396,28 @@
       "badge": "Typ",
       "path": "src/types/board.type.ts",
       "group": "types",
-      "summary": "Zentrale Typdefinitionen fuer Boards und ihre Tasks - Tasks tragen ihre Spalten-Zugehoerigkeit selbst (Feld `column`).",
+      "summary": "Zentrale Typdefinitionen für Boards und ihre Tasks (Spalte, Zuweisung, Deadline).",
       "sections": [],
-      "subtitle": "Datenmodell: Board besteht aus Titel + Task-Liste",
+      "subtitle": "Datenmodell: Board + Task",
       "position": {
-        "x": 1138,
-        "y": 564,
+        "x": 2015,
+        "y": 116,
+        "w": 220,
+        "h": 78
+      }
+    },
+    {
+      "id": "storage",
+      "type": "external",
+      "title": "localStorage",
+      "badge": "Browser-API",
+      "path": "Web API",
+      "group": "external",
+      "summary": "",
+      "sections": [],
+      "position": {
+        "x": 261,
+        "y": 1012,
         "w": 220,
         "h": 78
       }
@@ -390,7 +432,7 @@
       "summary": "",
       "sections": [],
       "position": {
-        "x": 261,
+        "x": 116,
         "y": 116,
         "w": 220,
         "h": 78
@@ -399,35 +441,61 @@
   ],
   "edges": [
     {
+      "from": "app",
+      "to": "usernameprovider",
+      "label": "rendert",
+      "style": "solid",
+      "exitSide": "left",
+      "enterSide": "right",
+      "exitAt": 0.667,
+      "enterAt": 0.333
+    },
+    {
       "from": "layout",
       "to": "header",
       "label": "rendert",
       "style": "solid",
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.25,
+      "enterAt": 0.333
+    },
+    {
+      "from": "usernameprovider",
+      "to": "storage",
+      "label": "persistiert",
+      "style": "solid",
+      "exitSide": "bottom",
+      "enterSide": "top"
+    },
+    {
+      "from": "usernameprovider",
+      "to": "usernamecontext",
+      "label": "Provider value",
+      "style": "solid",
       "exitSide": "right",
       "enterSide": "left",
-      "exitAt": 0.333,
-      "enterAt": 0.25
+      "exitAt": 0.667,
+      "enterAt": 0.25,
+      "curveSide": "right"
     },
     {
       "from": "boarddetailreducer",
       "to": "type-board.type",
       "label": "type",
       "style": "fine-dotted",
-      "exitSide": "left",
-      "enterSide": "right",
-      "exitAt": 0.667,
-      "enterAt": 0.333,
-      "curveSide": "right"
+      "exitSide": "top",
+      "enterSide": "bottom",
+      "enterAt": 0.333
     },
     {
       "from": "boardsoverviewreducer",
       "to": "type-board.type",
       "label": "type",
       "style": "fine-dotted",
-      "exitSide": "left",
-      "enterSide": "right",
-      "enterAt": 0.667,
-      "exitAt": 0.333
+      "exitSide": "top",
+      "enterSide": "bottom",
+      "enterAt": 0.667
     },
     {
       "from": "main",
@@ -442,20 +510,18 @@
       "to": "taskdialog",
       "label": "rendert",
       "style": "solid",
-      "exitSide": "left",
-      "enterSide": "right",
-      "exitAt": 0.333,
-      "enterAt": 0.333
+      "exitSide": "bottom",
+      "enterSide": "top"
     },
     {
       "from": "boarddetail",
       "to": "boardcolumn",
       "label": "rendert",
       "style": "solid",
-      "exitSide": "left",
-      "enterSide": "right",
-      "exitAt": 0.667,
-      "enterAt": 0.25
+      "exitSide": "right",
+      "enterSide": "left",
+      "exitAt": 0.75,
+      "enterAt": 0.333
     },
     {
       "from": "boarddetail",
@@ -464,9 +530,7 @@
       "style": "solid",
       "exitSide": "right",
       "enterSide": "left",
-      "enterAt": 0.333,
-      "exitAt": 0.333,
-      "curveSide": "left"
+      "exitAt": 0.5
     },
     {
       "from": "boarddetail",
@@ -475,16 +539,19 @@
       "style": "fine-dotted",
       "exitSide": "right",
       "enterSide": "left",
-      "exitAt": 0.667,
-      "enterAt": 0.143
+      "exitAt": 0.25,
+      "enterAt": 0.143,
+      "curveSide": "left"
     },
     {
       "from": "boardcolumn",
       "to": "taskdialog",
       "label": "rendert",
       "style": "solid",
-      "exitSide": "top",
-      "enterSide": "bottom"
+      "exitSide": "left",
+      "enterSide": "right",
+      "exitAt": 0.667,
+      "enterAt": 0.5
     },
     {
       "from": "boardcolumn",
@@ -493,7 +560,7 @@
       "style": "solid",
       "exitSide": "right",
       "enterSide": "left",
-      "exitAt": 0.5
+      "exitAt": 0.667
     },
     {
       "from": "boardcolumn",
@@ -502,9 +569,9 @@
       "style": "fine-dotted",
       "exitSide": "right",
       "enterSide": "left",
-      "exitAt": 0.75,
-      "enterAt": 0.429,
-      "curveSide": "right"
+      "enterAt": 0.571,
+      "exitAt": 0.333,
+      "curveSide": "left"
     },
     {
       "from": "taskcard",
@@ -513,7 +580,18 @@
       "style": "fine-dotted",
       "exitSide": "right",
       "enterSide": "left",
-      "enterAt": 0.571
+      "enterAt": 0.714
+    },
+    {
+      "from": "taskdialog",
+      "to": "usernamecontext",
+      "label": "useContext",
+      "style": "dashed",
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.5,
+      "exitAt": 0.75,
+      "curveSide": "right"
     },
     {
       "from": "taskdialog",
@@ -522,8 +600,8 @@
       "style": "fine-dotted",
       "exitSide": "right",
       "enterSide": "left",
-      "exitAt": 0.667,
-      "enterAt": 0.286,
+      "enterAt": 0.857,
+      "exitAt": 0.25,
       "curveSide": "left"
     },
     {
@@ -531,8 +609,9 @@
       "to": "boardcard",
       "label": "rendert",
       "style": "solid",
-      "exitSide": "top",
-      "enterSide": "bottom"
+      "exitSide": "left",
+      "enterSide": "right",
+      "enterAt": 0.667
     },
     {
       "from": "boardoverview",
@@ -541,9 +620,8 @@
       "style": "solid",
       "exitSide": "right",
       "enterSide": "left",
-      "enterAt": 0.667,
-      "exitAt": 0.333,
-      "curveSide": "right"
+      "exitAt": 0.667,
+      "curveSide": "left"
     },
     {
       "from": "boardoverview",
@@ -552,8 +630,8 @@
       "style": "fine-dotted",
       "exitSide": "right",
       "enterSide": "left",
-      "enterAt": 0.857,
-      "exitAt": 0.667
+      "enterAt": 0.286,
+      "exitAt": 0.333
     },
     {
       "from": "boardcard",
@@ -562,8 +640,27 @@
       "style": "fine-dotted",
       "exitSide": "right",
       "enterSide": "left",
-      "enterAt": 0.714,
-      "curveSide": "right"
+      "enterAt": 0.429,
+      "exitAt": 0.333,
+      "curveSide": "left"
+    },
+    {
+      "from": "profile",
+      "to": "storage",
+      "label": "persistiert",
+      "style": "solid",
+      "exitSide": "left",
+      "enterSide": "right",
+      "exitAt": 0.667
+    },
+    {
+      "from": "profile",
+      "to": "usernamecontext",
+      "label": "useContext",
+      "style": "dashed",
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.75
     },
     {
       "from": "app",
@@ -572,6 +669,7 @@
       "style": "solid",
       "exitSide": "left",
       "enterSide": "right",
+      "exitAt": 0.333,
       "enterAt": 0.333,
       "curveSide": "left"
     },
@@ -582,72 +680,71 @@
       "style": "dotted",
       "exitSide": "right",
       "enterSide": "left",
-      "exitAt": 0.667,
-      "enterAt": 0.333
+      "exitAt": 0.667
     },
     {
       "from": "layout",
       "to": "profile",
       "label": "Outlet /profile",
       "style": "dotted",
-      "exitSide": "left",
-      "enterSide": "right",
-      "exitAt": 0.667,
-      "enterAt": 0.333
+      "exitSide": "bottom",
+      "enterSide": "top",
+      "exitAt": 0.75
     },
     {
       "from": "header",
       "to": "layout",
       "label": "<Link>",
       "style": "dotted",
-      "exitSide": "left",
-      "enterSide": "right",
-      "enterAt": 0.667,
-      "exitAt": 0.5
+      "exitSide": "top",
+      "enterSide": "bottom",
+      "enterAt": 0.5,
+      "exitAt": 0.667
     },
     {
       "from": "header",
       "to": "profile",
       "label": "<Link>",
       "style": "dotted",
-      "exitSide": "left",
-      "enterSide": "right",
-      "exitAt": 0.75,
-      "enterAt": 0.667
+      "exitSide": "right",
+      "enterSide": "left",
+      "enterAt": 0.333,
+      "curveSide": "right"
     },
     {
       "from": "boarddetail",
       "to": "layout",
       "label": "<Link>",
       "style": "dotted",
-      "exitSide": "top",
-      "enterSide": "bottom",
-      "enterAt": 0.667
+      "exitSide": "left",
+      "enterSide": "right",
+      "enterAt": 0.333
     },
     {
       "from": "boardcard",
       "to": "layout",
       "label": "<Link>",
       "style": "dotted",
-      "exitSide": "top",
-      "enterSide": "bottom",
-      "enterAt": 0.333
+      "exitSide": "left",
+      "enterSide": "right",
+      "enterAt": 0.667,
+      "curveSide": "left"
     }
   ],
   "steps": [
     {
       "number": 0,
-      "title": "Vorstellung des Projekts und dessen Funktionalitaet",
+      "title": "Vorstellung des Projekts und dessen Funktionalität",
       "short": "Vorstellung",
-      "summary": "Das Kanban-Projekt wird vorgestellt: Boards mit Spalten und Tasks, ein Profil-Bereich und die Persistenz im Browser. Demo der fertigen App, bevor wir Schritt fuer Schritt nachbauen.",
+      "summary": "Das Kanban-Projekt wird vorgestellt: Boards mit Spalten und Tasks, ein Profil-Bereich und die Persistenz im Browser. Demo der fertigen App, bevor wir Schritt für Schritt nachbauen.",
       "learn": [
         "Was ist ein Kanban-Board (Spalten, Karten, Workflow)?",
-        "Welche Seiten hat die App: Profil, Board-Uebersicht, Board-Detail?",
+        "Welche Seiten hat die App: Profil, Board-Übersicht, Board-Detail?",
         "Welche Daten sind im Spiel: Boards, Columns, Tasks?",
         "Welcher Stack kommt zum Einsatz: React + React Router + TypeScript + Tailwind/shadcn?"
       ],
       "tasks": [
-        "Fertige App im Browser oeffnen und durchklicken",
+        "Fertige App im Browser öffnen und durchklicken",
         "Board anlegen, Spalten ansehen, Tasks per Drag-and-Drop verschieben",
         "Profil setzen und Reload machen, um die Persistenz zu sehen"
       ],
@@ -660,9 +757,9 @@
       "number": 1,
       "title": "Drei Seiten + Router (URL-basierte Navigation)",
       "short": "Seiten + Router",
-      "summary": "Die drei Seiten Profil, Board-Uebersicht und Board-Detail entstehen als Dummys mit einem einzigen `<p>`. Im `App.tsx` wird der `createBrowserRouter` aufgesetzt - noch ohne Layout. Navigation erfolgt durch direktes Aendern der URL.",
+      "summary": "Die drei Seiten Profil, Board-Übersicht und Board-Detail entstehen als Dummys mit einem einzigen `<p>`. Im `App.tsx` wird der `createBrowserRouter` aufgesetzt - noch ohne Layout. Navigation erfolgt durch direktes Ändern der URL.",
       "learn": [
-        "Komponenten als Dateien anlegen, default-exportieren und in Routen einhaengen",
+        "Komponenten als Dateien anlegen, default-exportieren und in Routen einhängen",
         "createBrowserRouter + RouterProvider aus react-router-dom",
         "Mapping URL-Pfad -> Komponente (path + element)",
         "Pfad-Parameter (`:id`) und Index-Routen (`index: true`)"
@@ -671,7 +768,7 @@
         "main.tsx als Einstiegspunkt anlegen, der die App in #root mountet",
         "App.tsx mit createBrowserRouter und drei Routen aufsetzen (/profile, /boards, /boards/:id)",
         "Profile.tsx, BoardOverview.tsx und BoardDetail.tsx jeweils als Dummy mit einem `<p>` anlegen",
-        "Im Browser durch direktes Aendern der URL zwischen den drei Seiten wechseln"
+        "Im Browser durch direktes Ändern der URL zwischen den drei Seiten wechseln"
       ],
       "added": {
         "nodes": [
@@ -699,6 +796,7 @@
             "enterSide": "right",
             "enterAt": 0.333,
             "exitSide": "left",
+            "exitAt": 0.333,
             "curveSide": "left"
           }
         ]
@@ -706,15 +804,15 @@
     },
     {
       "number": 2,
-      "title": "Board-Uebersicht: Titel, Button, Grid mit BoardCards",
-      "short": "Board-Uebersicht",
-      "summary": "Die Board-Uebersichtsseite wird ausgebaut: Seitentitel, `Neues Board`-Button und ein Grid mit Sample-BoardCards. Die `BoardCard`-Komponente entsteht und wird in die Uebersicht eingebunden. Header und Layout kommen noch nicht.",
+      "title": "Board-Übersicht: Titel, Button, Grid mit BoardCards",
+      "short": "Board-Übersicht",
+      "summary": "Die Board-Übersichtsseite wird ausgebaut: Seitentitel, `Neues Board`-Button und ein Grid mit Sample-BoardCards. Die `BoardCard`-Komponente entsteht und wird in die Übersicht eingebunden. Header und Layout kommen noch nicht.",
       "learn": [
         "Aufbau einer Seite: Heading + Aktionsbereich + Inhaltsbereich",
         "Tailwind-Grid-Layout (`grid`, `grid-cols-3`, `gap-4`)",
-        "Komponenten-Aufteilung: Page-Komponente vs. Praesentations-Komponente",
+        "Komponenten-Aufteilung: Page-Komponente vs. Präsentations-Komponente",
         "Props weiterreichen (Board-Daten und Callback)",
-        ".map() ueber statische Sample-Daten als Vorbereitung auf echten State"
+        ".map() über statische Sample-Daten als Vorbereitung auf echten State"
       ],
       "tasks": [
         "In BoardOverview den Titel und einen `Neues Board`-Button rendern",
@@ -732,8 +830,9 @@
             "to": "boardcard",
             "label": "rendert",
             "style": "solid",
-            "enterSide": "bottom",
-            "exitSide": "top"
+            "enterSide": "right",
+            "enterAt": 0.667,
+            "exitSide": "left"
           }
         ]
       }
@@ -742,7 +841,7 @@
       "number": 3,
       "title": "Board-Detail: Spalten und Tasks aufbauen",
       "short": "Board-Detail",
-      "summary": "Die Board-Detail-Seite bekommt Zurueck-Button, Titel mit Inline-Edit-Feld und drei `BoardColumn`-Spalten. In jeder Spalte werden `TaskCard`-Karten gerendert. Beide Seiten bekommen einen ersten `useState`-Slot mit einem festen Board-Objekt, das dynamisch gerendert wird.",
+      "summary": "Die Board-Detail-Seite bekommt Zurück-Button, Titel mit Inline-Edit-Feld und drei `BoardColumn`-Spalten. In jeder Spalte werden `TaskCard`-Karten gerendert. Beide Seiten bekommen einen ersten `useState`-Slot mit einem festen Board-Objekt, das dynamisch gerendert wird.",
       "learn": [
         "Inline-Edit-UI: Ansicht- und Bearbeitungsmodus mit einem `useState`-Boolean umschalten",
         "Container - Spalte - Karte als typische Listen-Hierarchie",
@@ -751,8 +850,8 @@
         "Statische Struktur (drei Spalten) vs. dynamische Liste (Tasks per `.map()`)"
       ],
       "tasks": [
-        "In BoardDetail einen Zurueck-Button und einen Titel-Bereich mit `useState`-Edit-Modus rendern",
-        "BoardColumn-Komponente bauen (Titel, Add-Button, Bereich fuer Karten) und drei Instanzen in BoardDetail einbinden",
+        "In BoardDetail einen Zurück-Button und einen Titel-Bereich mit `useState`-Edit-Modus rendern",
+        "BoardColumn-Komponente bauen (Titel, Add-Button, Bereich für Karten) und drei Instanzen in BoardDetail einbinden",
         "TaskCard-Komponente bauen und in BoardColumn pro Task rendern",
         "In BoardOverview ein Sample-Board per `useState` halten und das Grid daraus rendern",
         "In BoardDetail dasselbe: ein festes Board-Objekt via `useState`, Tasks per Spalte filtern und an BoardColumn weitergeben"
@@ -769,10 +868,10 @@
             "to": "boardcolumn",
             "label": "rendert",
             "style": "solid",
-            "enterSide": "right",
-            "enterAt": 0.25,
-            "exitSide": "left",
-            "exitAt": 0.667
+            "enterSide": "left",
+            "enterAt": 0.333,
+            "exitSide": "right",
+            "exitAt": 0.75
           },
           {
             "from": "boarddetail",
@@ -782,7 +881,8 @@
             "enterSide": "left",
             "enterAt": 0.143,
             "exitSide": "right",
-            "exitAt": 0.667
+            "exitAt": 0.25,
+            "curveSide": "left"
           },
           {
             "from": "boardcolumn",
@@ -791,7 +891,7 @@
             "style": "solid",
             "enterSide": "left",
             "exitSide": "right",
-            "exitAt": 0.5
+            "exitAt": 0.667
           },
           {
             "from": "boardcolumn",
@@ -799,10 +899,10 @@
             "label": "type",
             "style": "fine-dotted",
             "enterSide": "left",
-            "enterAt": 0.429,
+            "enterAt": 0.571,
             "exitSide": "right",
-            "exitAt": 0.75,
-            "curveSide": "right"
+            "exitAt": 0.333,
+            "curveSide": "left"
           },
           {
             "from": "taskcard",
@@ -810,7 +910,7 @@
             "label": "type",
             "style": "fine-dotted",
             "enterSide": "left",
-            "enterAt": 0.571,
+            "enterAt": 0.714,
             "exitSide": "right"
           },
           {
@@ -819,9 +919,9 @@
             "label": "type",
             "style": "fine-dotted",
             "enterSide": "left",
-            "enterAt": 0.857,
+            "enterAt": 0.286,
             "exitSide": "right",
-            "exitAt": 0.667
+            "exitAt": 0.333
           },
           {
             "from": "boardcard",
@@ -829,29 +929,30 @@
             "label": "type",
             "style": "fine-dotted",
             "enterSide": "left",
-            "enterAt": 0.714,
+            "enterAt": 0.429,
             "exitSide": "right",
-            "curveSide": "right"
+            "exitAt": 0.333,
+            "curveSide": "left"
           }
         ]
       }
     },
     {
       "number": 4,
-      "title": "Profilseite mit Inhalt fuellen",
+      "title": "Profilseite mit Inhalt füllen",
       "short": "Profil-Inhalt",
-      "summary": "Die Profil-Route bekommt Inhalt: Titel, eine Card mit Beschreibung, ein Eingabefeld fuer den Benutzernamen und einen Speichern-Button. Der Username wird lokal in `useState` gehalten - noch ohne Persistenz.",
+      "summary": "Die Profil-Route bekommt Inhalt: Titel, eine Card mit Beschreibung, ein Eingabefeld für den Benutzernamen und einen Speichern-Button. Der Username wird lokal in `useState` gehalten - noch ohne Persistenz.",
       "learn": [
-        "Card-Layout (Header, Content, Description) als Container fuer Formulare",
-        "Controlled Input: `value` aus dem State, Aenderungen per `onChange`",
+        "Card-Layout (Header, Content, Description) als Container für Formulare",
+        "Controlled Input: `value` aus dem State, Änderungen per `onChange`",
         "`useState` mit Initialwert und Typ-Inferenz",
-        "Tailwind-Hilfsklassen fuer ein einfaches Formular-Layout (`mx-auto`, `max-w-md`, `flex flex-col`)"
+        "Tailwind-Hilfsklassen für ein einfaches Formular-Layout (`mx-auto`, `max-w-md`, `flex flex-col`)"
       ],
       "tasks": [
-        "Profilseite mit einem `useState`-Slot fuer den Benutzernamen versehen",
+        "Profilseite mit einem `useState`-Slot für den Benutzernamen versehen",
         "Card mit Title und Description anlegen",
-        "Label und Input fuer den Benutzernamen einbinden",
-        "Speichern-Button platzieren (Funktion folgt in einem spaeteren Schritt)"
+        "Label und Input für den Benutzernamen einbinden",
+        "Speichern-Button platzieren (Funktion folgt in einem späteren Schritt)"
       ],
       "added": {
         "nodes": [],
@@ -862,7 +963,7 @@
       "number": 5,
       "title": "Header und Layout: Navigation und mittige Platzierung",
       "short": "Header + Layout",
-      "summary": "Die Header-Komponente entsteht mit zwei `<Link>`-Eintraegen zu Profil und Boards. Die Layout-Komponente kommt als persistente Shell dazu: Header oben, darunter ein `<Outlet/>`, der durch ein Container-`<main>` gleichmaessig mittig platziert wird. Die Routen in App.tsx haengen jetzt unter Layout.",
+      "summary": "Die Header-Komponente entsteht mit zwei `<Link>`-Einträgen zu Profil und Boards. Die Layout-Komponente kommt als persistente Shell dazu: Header oben, darunter ein `<Outlet/>`, der durch ein Container-`<main>` gleichmässig mittig platziert wird. Die Routen in App.tsx hängen jetzt unter Layout.",
       "learn": [
         "`<Link>` aus react-router-dom statt `<a>` (kein Full-Reload)",
         "Layout-Routen mit `<Outlet/>` als Shell-Pattern",
@@ -870,10 +971,10 @@
         "Mittige Platzierung von Inhalten mit Tailwind (`container mx-auto`)"
       ],
       "tasks": [
-        "Header-Komponente anlegen mit zwei `<Link>`-Eintraegen zu /boards und /profile",
+        "Header-Komponente anlegen mit zwei `<Link>`-Einträgen zu /boards und /profile",
         "Layout-Komponente anlegen, die Header plus ein zentriertes `<main>` mit `<Outlet/>` rendert",
         "In App.tsx die drei Routen unter Layout verschachteln (`path: \"/\"`, `element: <Layout/>`, `children: [...]`)",
-        "Im Browser pruefen, dass der Header oben persistent bleibt und nur der Outlet-Inhalt wechselt"
+        "Im Browser prüfen, dass der Header oben persistent bleibt und nur der Outlet-Inhalt wechselt"
       ],
       "added": {
         "nodes": [
@@ -886,10 +987,10 @@
             "to": "header",
             "label": "rendert",
             "style": "solid",
-            "enterSide": "left",
-            "enterAt": 0.25,
-            "exitSide": "right",
-            "exitAt": 0.333
+            "enterSide": "top",
+            "enterAt": 0.333,
+            "exitSide": "bottom",
+            "exitAt": 0.25
           },
           {
             "from": "router",
@@ -897,7 +998,6 @@
             "label": "Route \"/\"",
             "style": "dotted",
             "enterSide": "left",
-            "enterAt": 0.333,
             "exitSide": "right",
             "exitAt": 0.667
           },
@@ -906,48 +1006,48 @@
             "to": "profile",
             "label": "Outlet /profile",
             "style": "dotted",
-            "enterSide": "right",
-            "enterAt": 0.333,
-            "exitSide": "left",
-            "exitAt": 0.667
+            "enterSide": "top",
+            "exitSide": "bottom",
+            "exitAt": 0.75
           },
           {
             "from": "header",
             "to": "layout",
             "label": "<Link>",
             "style": "dotted",
-            "enterSide": "right",
-            "enterAt": 0.667,
-            "exitSide": "left",
-            "exitAt": 0.5
+            "enterSide": "bottom",
+            "enterAt": 0.5,
+            "exitSide": "top",
+            "exitAt": 0.667
           },
           {
             "from": "header",
             "to": "profile",
             "label": "<Link>",
             "style": "dotted",
-            "enterSide": "right",
-            "enterAt": 0.667,
-            "exitSide": "left",
-            "exitAt": 0.75
+            "enterSide": "left",
+            "enterAt": 0.333,
+            "exitSide": "right",
+            "curveSide": "right"
           },
           {
             "from": "boarddetail",
             "to": "layout",
             "label": "<Link>",
             "style": "dotted",
-            "enterSide": "bottom",
-            "enterAt": 0.667,
-            "exitSide": "top"
+            "enterSide": "right",
+            "enterAt": 0.333,
+            "exitSide": "left"
           },
           {
             "from": "boardcard",
             "to": "layout",
             "label": "<Link>",
             "style": "dotted",
-            "enterSide": "bottom",
-            "enterAt": 0.333,
-            "exitSide": "top"
+            "enterSide": "right",
+            "enterAt": 0.667,
+            "exitSide": "left",
+            "curveSide": "left"
           }
         ]
       }
@@ -966,8 +1066,8 @@
       "tasks": [
         "Card-Komponente in `components/ui/card.tsx` auf einheitliches Aussehen anpassen",
         "Input-Komponente in `components/ui/input.tsx` mit Custom-Styles versehen",
-        "Tailwind-Theme (in `index.css` oder Config) um eigene Farben ergaenzen",
-        "Buttons mit `hover:`-State versehen (Farbe, Schatten o. ae.)"
+        "Tailwind-Theme (in `index.css` oder Config) um eigene Farben ergänzen",
+        "Buttons mit `hover:`-State versehen (Farbe, Schatten o. ä.)"
       ],
       "added": {
         "nodes": [],
@@ -976,20 +1076,20 @@
     },
     {
       "number": 7,
-      "title": "Drag-and-Drop Grundgeruest: TaskCards draggable, Spalten droppable",
+      "title": "Drag-and-Drop Grundgerüst: TaskCards draggable, Spalten droppable",
       "short": "Drag & Drop",
       "summary": "`TaskCard` wird draggable, `BoardColumn` akzeptiert Drops. Die native HTML-Drag-and-Drop-API wird verkabelt - Daten werden in dieser Stufe noch nicht verschoben.",
       "learn": [
         "HTML-Drag-and-Drop-API: `draggable`, `onDragStart`, `onDragEnter`, `onDragOver`, `onDrop`",
         "DataTransfer: Quell-Spalte mit `dataTransfer.setData` weitergeben und im Drop-Handler auslesen",
-        "`preventDefault` in `onDragOver` als Voraussetzung dafuer, dass `onDrop` ueberhaupt feuert",
-        "Visuelles Feedback waehrend des Drag-Hovers per `useState`-Boolean und Tailwind-Klasse"
+        "`preventDefault` in `onDragOver` als Voraussetzung dafür, dass `onDrop` überhaupt feuert",
+        "Visuelles Feedback während des Drag-Hovers per `useState`-Boolean und Tailwind-Klasse"
       ],
       "tasks": [
         "TaskCard mit `draggable` und `onDragStart` versehen, das die Quell-Spalte in `dataTransfer` schreibt",
         "BoardColumn mit `onDragEnter`, `onDragOver` und `onDrop` versehen (Drop-Handler bleibt vorerst ein Stub)",
-        "Drop-Zone visuell hervorheben, solange eine Karte daruebergezogen wird",
-        "Im Browser pruefen, dass die Karten verschiebbar wirken, aber noch nicht real die Spalte wechseln"
+        "Drop-Zone visuell hervorheben, solange eine Karte darübergezogen wird",
+        "Im Browser prüfen, dass die Karten verschiebbar wirken, aber noch nicht real die Spalte wechseln"
       ],
       "added": {
         "nodes": [],
@@ -1000,19 +1100,19 @@
       "number": 8,
       "title": "Create-Board-Dialog, Reducer anlegen und einbinden",
       "short": "Dialog + Reducer",
-      "summary": "Der Dialog zum Erstellen neuer Boards wird in der BoardOverview aufgesetzt - zunaechst nur JSX und `useState` fuer den Board-Namen. Danach entsteht der `useBoardOverviewReducer` als eigene Datei. Zum Abschluss wird er in BoardOverview ueber `useReducer` eingebunden und der Sample-State ersetzt.",
+      "summary": "Der Dialog zum Erstellen neuer Boards wird in der BoardOverview aufgesetzt - zunächst nur JSX und `useState` für den Board-Namen. Danach entsteht der `useBoardOverviewReducer` als eigene Datei. Zum Abschluss wird er in BoardOverview über `useReducer` eingebunden und der Sample-State ersetzt.",
       "learn": [
         "Dialog-Pattern aus ShadCN: Trigger, Content, Footer mit Cancel und Confirm",
         "Controlled Input in einem Dialog mit `useState`",
         "Reducer-Muster: Pure `(state, action) => state`, Action als diskriminiertes Objekt",
-        "`useReducer` als Alternative zu mehreren `useState`-Slots fuer Listen-Operationen",
-        "Dispatch als zentraler Eintrittspunkt fuer Aenderungen (`dispatch({ type, data })`)"
+        "`useReducer` als Alternative zu mehreren `useState`-Slots für Listen-Operationen",
+        "Dispatch als zentraler Eintrittspunkt für Änderungen (`dispatch({ type, data })`)"
       ],
       "tasks": [
-        "In BoardOverview einen Dialog mit Eingabefeld fuer den Board-Namen aufsetzen, `useState` fuer den Input",
+        "In BoardOverview einen Dialog mit Eingabefeld für den Board-Namen aufsetzen, `useState` für den Input",
         "Reducer-Datei `hooks/boardsOverviewReducer.ts` anlegen mit ADD- und DELETE-Action",
         "In BoardOverview `useReducer(useBoardOverviewReducer, [])` einbauen und Sample-State durch dispatch ersetzen",
-        "Im Browser: Boards via Dialog anlegen und loeschen, dispatch im Devtools nachverfolgen"
+        "Im Browser: Boards via Dialog anlegen und löschen, dispatch im Devtools nachverfolgen"
       ],
       "added": {
         "nodes": [
@@ -1024,10 +1124,9 @@
             "to": "type-board.type",
             "label": "type",
             "style": "fine-dotted",
-            "enterSide": "right",
+            "enterSide": "bottom",
             "enterAt": 0.667,
-            "exitSide": "left",
-            "exitAt": 0.333
+            "exitSide": "top"
           },
           {
             "from": "boardoverview",
@@ -1035,10 +1134,9 @@
             "label": "useReducer(...)",
             "style": "solid",
             "enterSide": "left",
-            "enterAt": 0.667,
             "exitSide": "right",
-            "exitAt": 0.333,
-            "curveSide": "right"
+            "exitAt": 0.667,
+            "curveSide": "left"
           }
         ]
       }
@@ -1047,26 +1145,27 @@
       "number": 9,
       "title": "Board-Detail-State: Reducer, ADD/DELETE/UPDATE_TASK, TaskDialog",
       "short": "BoardDetail-State",
-      "summary": "Die Board-Detail-Seite bekommt schrittweise echten State und persistente Operationen. Erst der Reducer mit `UPDATE_BOARD_NAME` (Titel-Edit), dann `ADD_TASK` mit einem Inline-Dialog in BoardColumn, dann `DELETE_TASK` mit durchgereichten Callbacks, schliesslich die TaskDialog-Komponente fuer das Bearbeiten und `UPDATE_TASK`. Bonus: TaskDialog auch fuer den Create-Flow in BoardColumn nutzen.",
+      "summary": "Die Board-Detail-Seite bekommt schrittweise echten State und persistente Operationen. Erst der Reducer mit `UPDATE_BOARD_NAME` (Titel-Edit), dann `ADD_TASK` mit einem Inline-Dialog in BoardColumn, dann `DELETE_TASK` mit durchgereichten Callbacks, schliesslich die TaskDialog-Komponente für das Bearbeiten und `UPDATE_TASK`. Bonus: TaskDialog auch für den Create-Flow in BoardColumn nutzen.",
       "learn": [
-        "Reducer mit diskriminierter Union ueber mehrere Action-Typen",
+        "Reducer mit diskriminierter Union über mehrere Action-Typen",
         "Listen-Operationen auf immutablem State: `map`, `filter`, Spread",
         "Callbacks von Page nach Column nach Card durchreichen (Props-Drilling)",
-        "Wiederverwendbare Dialog-Komponente: gleiches JSX, einmal fuer Create, einmal fuer Edit",
+        "Wiederverwendbare Dialog-Komponente: gleiches JSX, einmal für Create, einmal für Edit",
         "Form-State in einer Dialog-Komponente kapseln (Titel, Beschreibung, Deadline)"
       ],
       "tasks": [
-        "Reducer `useBoardDetailReducer` mit `UPDATE_BOARD_NAME` anlegen und in BoardDetail fuer den Titel-Edit einbinden",
-        "Inline-Dialog fuer das Anlegen einer Task in BoardColumn aufsetzen (ohne Reducer-Aenderung)",
+        "Reducer `useBoardDetailReducer` mit `UPDATE_BOARD_NAME` anlegen und in BoardDetail für den Titel-Edit einbinden",
+        "Inline-Dialog für das Anlegen einer Task in BoardColumn aufsetzen (ohne Reducer-Änderung)",
         "Reducer um `ADD_TASK` erweitern und mit dem Inline-Dialog in BoardColumn verkabeln",
         "Reducer um `DELETE_TASK` erweitern; Callbacks von BoardDetail nach BoardColumn nach TaskCard durchreichen",
-        "TaskDialog-Komponente anlegen, Reducer um `UPDATE_TASK` erweitern, TaskDialog in BoardDetail fuer Edit einbinden",
-        "Bonus: TaskDialog auch in BoardColumn fuer den Create-Flow nutzen (ersetzt den Inline-Dialog)"
+        "TaskDialog-Komponente anlegen, Reducer um `UPDATE_TASK` erweitern, TaskDialog in BoardDetail für Edit einbinden",
+        "Bonus: TaskDialog auch in BoardColumn für den Create-Flow nutzen (ersetzt den Inline-Dialog)"
       ],
       "added": {
         "nodes": [
           "boarddetailreducer",
-          "taskdialog"
+          "taskdialog",
+          "storage"
         ],
         "edges": [
           {
@@ -1074,21 +1173,17 @@
             "to": "type-board.type",
             "label": "type",
             "style": "fine-dotted",
-            "enterSide": "right",
+            "enterSide": "bottom",
             "enterAt": 0.333,
-            "exitSide": "left",
-            "exitAt": 0.667,
-            "curveSide": "right"
+            "exitSide": "top"
           },
           {
             "from": "boarddetail",
             "to": "taskdialog",
             "label": "rendert",
             "style": "solid",
-            "enterSide": "right",
-            "enterAt": 0.333,
-            "exitSide": "left",
-            "exitAt": 0.333
+            "enterSide": "top",
+            "exitSide": "bottom"
           },
           {
             "from": "boarddetail",
@@ -1096,18 +1191,18 @@
             "label": "useReducer(...)",
             "style": "solid",
             "enterSide": "left",
-            "enterAt": 0.333,
             "exitSide": "right",
-            "exitAt": 0.333,
-            "curveSide": "left"
+            "exitAt": 0.5
           },
           {
             "from": "boardcolumn",
             "to": "taskdialog",
             "label": "rendert",
             "style": "solid",
-            "enterSide": "bottom",
-            "exitSide": "top"
+            "enterSide": "right",
+            "enterAt": 0.5,
+            "exitSide": "left",
+            "exitAt": 0.667
           },
           {
             "from": "taskdialog",
@@ -1115,15 +1210,335 @@
             "label": "type",
             "style": "fine-dotted",
             "enterSide": "left",
-            "enterAt": 0.286,
+            "enterAt": 0.857,
+            "exitSide": "right",
+            "exitAt": 0.25,
+            "curveSide": "left"
+          },
+          {
+            "from": "profile",
+            "to": "storage",
+            "label": "persistiert",
+            "style": "solid",
+            "enterSide": "right",
+            "exitSide": "left",
+            "exitAt": 0.667
+          }
+        ]
+      }
+    },
+    {
+      "number": 10,
+      "title": "UserNameContext + Provider: Benutzername global verfügbar machen",
+      "short": "UserName-Context",
+      "summary": "Der Benutzername aus dem Profil wird über einen Context global verfügbar - so kann der TaskDialog ihn als Auswahl-Option im 'Zugewiesen an'-Dropdown anbieten. Dazu kommt das Feld `assignedTo` am Task-Typ.",
+      "learn": [
+        "Context-Pattern: `createContext` + `<Context.Provider>` + `useContext`",
+        "Custom Provider-Komponente als Wrapper-Pattern (Children-Prop, eigener State)",
+        "Provider in App.tsx über den Routern platzieren, damit alle Routen Zugriff haben",
+        "Konsumenten an zwei Stellen: Profile setzt den Namen, TaskDialog liest ihn",
+        "Type-Erweiterung: optionales Feld am bestehenden Task-Interface"
+      ],
+      "tasks": [
+        "`context/UserNameContext.tsx` mit `createContext` anlegen (Form: { userName, setUserName })",
+        "`context/UserNameProvider.tsx` als Wrapper-Komponente mit `useState` + Initial-Load aus localStorage",
+        "UserNameProvider in App.tsx um den RouterProvider legen",
+        "Profile.tsx auf `useContext(UserNameContext)` umstellen, lokalen useState entfernen",
+        "Task-Typ in `types/board.type.ts` um `assignedTo?: string` erweitern",
+        "TaskDialog.tsx: `assignedTo`-Feld als Select-Dropdown mit dem Context-Namen als Auswahl"
+      ],
+      "added": {
+        "nodes": [
+          "usernamecontext",
+          "usernameprovider"
+        ],
+        "edges": [
+          {
+            "from": "app",
+            "to": "usernameprovider",
+            "label": "rendert",
+            "style": "solid",
+            "enterSide": "right",
+            "enterAt": 0.333,
+            "exitSide": "left",
+            "exitAt": 0.667
+          },
+          {
+            "from": "usernameprovider",
+            "to": "storage",
+            "label": "persistiert",
+            "style": "solid",
+            "enterSide": "top",
+            "exitSide": "bottom"
+          },
+          {
+            "from": "usernameprovider",
+            "to": "usernamecontext",
+            "label": "Provider value",
+            "style": "solid",
+            "enterSide": "left",
+            "enterAt": 0.25,
             "exitSide": "right",
             "exitAt": 0.667,
-            "curveSide": "left"
+            "curveSide": "right"
+          },
+          {
+            "from": "taskdialog",
+            "to": "usernamecontext",
+            "label": "useContext",
+            "style": "dashed",
+            "enterSide": "left",
+            "enterAt": 0.5,
+            "exitSide": "right",
+            "exitAt": 0.75,
+            "curveSide": "right"
+          },
+          {
+            "from": "profile",
+            "to": "usernamecontext",
+            "label": "useContext",
+            "style": "dashed",
+            "enterSide": "left",
+            "enterAt": 0.75,
+            "exitSide": "right"
           }
         ]
       }
     }
   ],
-  "tours": {},
+  "tours": {
+    "create-board": {
+      "title": "Board erstellen",
+      "steps": [
+        {
+          "title": "Plus-Button klicken",
+          "description": "Auf der Board-Übersicht öffnet ein Klick auf <strong>Neues Board</strong> den shadcn-Dialog. Der eingegebene Name wird lokal in <code>boardNameInput</code> per <code>useState</code> gehalten.",
+          "nodes": [
+            "boardoverview"
+          ],
+          "edges": []
+        },
+        {
+          "title": "Speichern dispatched ADD",
+          "description": "<code>handleAddNewBoard</code> baut ein neues <code>Board</code>-Objekt und ruft <code>boardsDispatch({ type: \"ADD\", data: newBoard })</code>. Die Action geht in den Reducer.",
+          "nodes": [
+            "boardoverview",
+            "boardsoverviewreducer"
+          ],
+          "edges": [
+            [
+              "boardoverview",
+              "boardsoverviewreducer"
+            ]
+          ]
+        },
+        {
+          "title": "Reducer hängt das Board an die Liste an",
+          "description": "<code>useBoardOverviewReducer</code> behandelt den Case <code>\"ADD\"</code> per Spread: <code>[...prevState, action.data]</code>. Im Anschluss ruft er <code>saveBoards(newState)</code> auf, der den neuen Stand in den <strong>localStorage</strong> schreibt.",
+          "nodes": [
+            "boardsoverviewreducer",
+            "storage"
+          ],
+          "edges": []
+        },
+        {
+          "title": "React rendert die neue BoardCard",
+          "description": "Da sich der Reducer-State geändert hat, rendert React die <code>.map()</code>-Schleife in BoardOverview neu. Eine zusätzliche <strong>BoardCard</strong> erscheint im Grid und ist sofort klickbar.",
+          "nodes": [
+            "boardoverview",
+            "boardcard"
+          ],
+          "edges": [
+            [
+              "boardoverview",
+              "boardcard"
+            ]
+          ]
+        }
+      ]
+    },
+    "open-board": {
+      "title": "Board öffnen (Navigation + Hydration)",
+      "steps": [
+        {
+          "title": "BoardCard klicken",
+          "description": "Jede <strong>BoardCard</strong> ist von einem <code>&lt;Link to={`/boards/${board.id}`}&gt;</code> umschlossen. Ein Klick trägt die Ziel-URL in die History ein.",
+          "nodes": [
+            "boardcard"
+          ],
+          "edges": []
+        },
+        {
+          "title": "Router matched /boards/:id",
+          "description": "Der <code>createBrowserRouter</code> erkennt die URL und wählt die Route mit <code>path: \":id\"</code> aus. Das <code>&lt;Outlet/&gt;</code> im <strong>Layout</strong> wird mit <strong>BoardDetail</strong> befüllt.",
+          "nodes": [
+            "boardcard",
+            "router",
+            "layout",
+            "boarddetail"
+          ],
+          "edges": [
+            [
+              "boardcard",
+              "layout"
+            ],
+            [
+              "app",
+              "router"
+            ],
+            [
+              "router",
+              "layout"
+            ]
+          ]
+        },
+        {
+          "title": "BoardDetail lädt das Board aus localStorage",
+          "description": "Beim Mount liest <strong>BoardDetail</strong> die <code>:id</code> via <code>useParams()</code> und holt den passenden Datensatz über <code>getBoardById(id)</code> aus dem <strong>localStorage</strong>. Das Ergebnis ist der Initialwert für <code>useReducer</code>.",
+          "nodes": [
+            "boarddetail",
+            "boarddetailreducer",
+            "storage"
+          ],
+          "edges": [
+            [
+              "boarddetail",
+              "boarddetailreducer"
+            ]
+          ]
+        },
+        {
+          "title": "Drei BoardColumns mit ihren Tasks",
+          "description": "BoardDetail filtert <code>board.tasks</code> nach <code>column</code> und reicht je eine Teilmenge an drei <strong>BoardColumn</strong>-Instanzen (ToDo, Progress, Done). Jede Spalte mappt ihre Tasks auf <strong>TaskCard</strong>-Komponenten.",
+          "nodes": [
+            "boarddetail",
+            "boardcolumn",
+            "taskcard"
+          ],
+          "edges": [
+            [
+              "boarddetail",
+              "boardcolumn"
+            ],
+            [
+              "boardcolumn",
+              "taskcard"
+            ]
+          ]
+        }
+      ]
+    },
+    "drag-task": {
+      "title": "Task per Drag-and-Drop verschieben",
+      "steps": [
+        {
+          "title": "Drag startet auf der TaskCard",
+          "description": "<strong>TaskCard</strong> ist als <code>draggable</code> markiert. Der <code>onDragStart</code>-Handler schreibt zwei spezielle MIME-Types in <code>dataTransfer</code>: <code>column-{ToDo|Progress|Done}</code> und <code>id-{taskId}</code>.",
+          "nodes": [
+            "taskcard"
+          ],
+          "edges": []
+        },
+        {
+          "title": "BoardColumn akzeptiert den Drop",
+          "description": "Die <strong>BoardColumn</strong> verhindert das Default-Verhalten in <code>onDragOver</code> (sonst feuert <code>onDrop</code> nie). Hover-State zeigt eine gestrichelte Drop-Zone an.",
+          "nodes": [
+            "taskcard",
+            "boardcolumn"
+          ],
+          "edges": []
+        },
+        {
+          "title": "onDrop liest dataTransfer + Callback nach oben",
+          "description": "Im <code>onDrop</code> liest die Spalte beide Werte aus <code>dataTransfer</code> wieder aus. Wenn die Ziel-Spalte sich von der Quell-Spalte unterscheidet, ruft sie <code>onUpdateTaskStatus(id, title)</code> &mdash; ein Callback, der via Props von <strong>BoardDetail</strong> reingereicht wurde.",
+          "nodes": [
+            "boardcolumn",
+            "boarddetail"
+          ],
+          "edges": [
+            [
+              "boarddetail",
+              "boardcolumn"
+            ]
+          ]
+        },
+        {
+          "title": "Reducer aktualisiert das Task-Status und persistiert",
+          "description": "BoardDetail dispatcht <code>UPDATE_TASK_STATUS</code>. Der <strong>useBoardDetailReducer</strong> mappt über alle Tasks, setzt für die getroffene ID das neue <code>column</code> und ruft <code>saveBoard()</code> &rarr; <strong>localStorage</strong>. React rendert beide betroffenen Spalten neu.",
+          "nodes": [
+            "boarddetail",
+            "boarddetailreducer",
+            "storage"
+          ],
+          "edges": [
+            [
+              "boarddetail",
+              "boarddetailreducer"
+            ]
+          ]
+        }
+      ]
+    },
+    "username-context": {
+      "title": "Username im TaskDialog verfügbar machen",
+      "steps": [
+        {
+          "title": "User setzt seinen Namen in Profile",
+          "description": "Auf <code>/profile</code> tippt der User in das Input-Feld. <strong>Profile</strong> hält den Wert lokal in <code>useState</code>, gelesen aus dem aktuellen Context.",
+          "nodes": [
+            "profile"
+          ],
+          "edges": []
+        },
+        {
+          "title": "Speichern: Context + localStorage",
+          "description": "<code>handleSubmit</code> macht zweierlei: <code>context.setUserName(username)</code> aktualisiert den globalen State, <code>localStorage.setItem(\"kanban-user-name\", username)</code> persistiert ihn für den nächsten App-Start.",
+          "nodes": [
+            "profile",
+            "usernamecontext",
+            "storage"
+          ],
+          "edges": [
+            [
+              "profile",
+              "usernamecontext"
+            ],
+            [
+              "profile",
+              "storage"
+            ]
+          ]
+        },
+        {
+          "title": "Provider liefert den neuen Wert an alle Konsumenten",
+          "description": "<strong>UserNameProvider</strong> hält den State und gibt ihn als <code>value={{ userName, setUserName }}</code> an den <strong>UserNameContext.Provider</strong>. Alle Komponenten unter dem Provider re-rendern, sobald <code>userName</code> sich ändert.",
+          "nodes": [
+            "usernameprovider",
+            "usernamecontext"
+          ],
+          "edges": [
+            [
+              "usernameprovider",
+              "usernamecontext"
+            ]
+          ]
+        },
+        {
+          "title": "TaskDialog liest den Context",
+          "description": "Wird ein <strong>TaskDialog</strong> geöffnet (Create- oder Edit-Modus), liest er den aktuellen Namen mit <code>useContext(UserNameContext)</code> aus. Der Wert landet im <em>Zugewiesen an</em>-Select als zusätzliche Option &mdash; ohne dass die Komponente vom Profile-State direkt etwas weiss.",
+          "nodes": [
+            "taskdialog",
+            "usernamecontext"
+          ],
+          "edges": [
+            [
+              "taskdialog",
+              "usernamecontext"
+            ]
+          ]
+        }
+      ]
+    }
+  },
   "glossary": []
 }

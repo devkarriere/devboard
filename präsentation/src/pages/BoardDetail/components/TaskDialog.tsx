@@ -30,6 +30,12 @@ import { useContext, useState } from "react"
 import { Textarea } from "../../../components/ui/textarea"
 import { UserNameContext } from "../../../context/UserNameContext"
 
+/**
+ * @arch-badge Komponente
+ * @arch-subtitle Modal-Formular: Task anlegen oder bearbeiten
+ * @arch-summary Bündelt Titel-, Beschreibung-, Zuweisungs- und Deadline-Felder; reicht die zusammengesetzte Task per Callback nach oben.
+ * @arch-step 9
+ */
 export default function TaskDialog({
   open,
   handleOpenChange,

@@ -1,0 +1,122 @@
+{
+  "$schema": "./schema/architektur.schema.json",
+  "_comment": "Szenario-Touren-Manifest. Wird vom Generator via --touren eingelesen und in architektur.json.tours gemerged. Knoten- und Edge-IDs werden gegen die generierte Architektur validiert.",
+  "tours": {
+    "create-board": {
+      "title": "Board erstellen",
+      "steps": [
+        {
+          "title": "Plus-Button klicken",
+          "description": "Auf der Board-Übersicht öffnet ein Klick auf <strong>Neues Board</strong> den shadcn-Dialog. Der eingegebene Name wird lokal in <code>boardNameInput</code> per <code>useState</code> gehalten.",
+          "nodes": ["boardoverview"],
+          "edges": []
+        },
+        {
+          "title": "Speichern dispatched ADD",
+          "description": "<code>handleAddNewBoard</code> baut ein neues <code>Board</code>-Objekt und ruft <code>boardsDispatch({ type: \"ADD\", data: newBoard })</code>. Die Action geht in den Reducer.",
+          "nodes": ["boardoverview", "boardsoverviewreducer"],
+          "edges": [["boardoverview", "boardsoverviewreducer"]]
+        },
+        {
+          "title": "Reducer hängt das Board an die Liste an",
+          "description": "<code>useBoardOverviewReducer</code> behandelt den Case <code>\"ADD\"</code> per Spread: <code>[...prevState, action.data]</code>. Im Anschluss ruft er <code>saveBoards(newState)</code> auf, der den neuen Stand in den <strong>localStorage</strong> schreibt.",
+          "nodes": ["boardsoverviewreducer", "storage"],
+          "edges": []
+        },
+        {
+          "title": "React rendert die neue BoardCard",
+          "description": "Da sich der Reducer-State geändert hat, rendert React die <code>.map()</code>-Schleife in BoardOverview neu. Eine zusätzliche <strong>BoardCard</strong> erscheint im Grid und ist sofort klickbar.",
+          "nodes": ["boardoverview", "boardcard"],
+          "edges": [["boardoverview", "boardcard"]]
+        }
+      ]
+    },
+    "open-board": {
+      "title": "Board öffnen (Navigation + Hydration)",
+      "steps": [
+        {
+          "title": "BoardCard klicken",
+          "description": "Jede <strong>BoardCard</strong> ist von einem <code>&lt;Link to={`/boards/${board.id}`}&gt;</code> umschlossen. Ein Klick trägt die Ziel-URL in die History ein.",
+          "nodes": ["boardcard"],
+          "edges": []
+        },
+        {
+          "title": "Router matched /boards/:id",
+          "description": "Der <code>createBrowserRouter</code> erkennt die URL und wählt die Route mit <code>path: \":id\"</code> aus. Das <code>&lt;Outlet/&gt;</code> im <strong>Layout</strong> wird mit <strong>BoardDetail</strong> befüllt.",
+          "nodes": ["boardcard", "router", "layout", "boarddetail"],
+          "edges": [["boardcard", "layout"], ["app", "router"], ["router", "layout"]]
+        },
+        {
+          "title": "BoardDetail lädt das Board aus localStorage",
+          "description": "Beim Mount liest <strong>BoardDetail</strong> die <code>:id</code> via <code>useParams()</code> und holt den passenden Datensatz über <code>getBoardById(id)</code> aus dem <strong>localStorage</strong>. Das Ergebnis ist der Initialwert für <code>useReducer</code>.",
+          "nodes": ["boarddetail", "boarddetailreducer", "storage"],
+          "edges": [["boarddetail", "boarddetailreducer"]]
+        },
+        {
+          "title": "Drei BoardColumns mit ihren Tasks",
+          "description": "BoardDetail filtert <code>board.tasks</code> nach <code>column</code> und reicht je eine Teilmenge an drei <strong>BoardColumn</strong>-Instanzen (ToDo, Progress, Done). Jede Spalte mappt ihre Tasks auf <strong>TaskCard</strong>-Komponenten.",
+          "nodes": ["boarddetail", "boardcolumn", "taskcard"],
+          "edges": [["boarddetail", "boardcolumn"], ["boardcolumn", "taskcard"]]
+        }
+      ]
+    },
+    "drag-task": {
+      "title": "Task per Drag-and-Drop verschieben",
+      "steps": [
+        {
+          "title": "Drag startet auf der TaskCard",
+          "description": "<strong>TaskCard</strong> ist als <code>draggable</code> markiert. Der <code>onDragStart</code>-Handler schreibt zwei spezielle MIME-Types in <code>dataTransfer</code>: <code>column-{ToDo|Progress|Done}</code> und <code>id-{taskId}</code>.",
+          "nodes": ["taskcard"],
+          "edges": []
+        },
+        {
+          "title": "BoardColumn akzeptiert den Drop",
+          "description": "Die <strong>BoardColumn</strong> verhindert das Default-Verhalten in <code>onDragOver</code> (sonst feuert <code>onDrop</code> nie). Hover-State zeigt eine gestrichelte Drop-Zone an.",
+          "nodes": ["taskcard", "boardcolumn"],
+          "edges": []
+        },
+        {
+          "title": "onDrop liest dataTransfer + Callback nach oben",
+          "description": "Im <code>onDrop</code> liest die Spalte beide Werte aus <code>dataTransfer</code> wieder aus. Wenn die Ziel-Spalte sich von der Quell-Spalte unterscheidet, ruft sie <code>onUpdateTaskStatus(id, title)</code> &mdash; ein Callback, der via Props von <strong>BoardDetail</strong> reingereicht wurde.",
+          "nodes": ["boardcolumn", "boarddetail"],
+          "edges": [["boarddetail", "boardcolumn"]]
+        },
+        {
+          "title": "Reducer aktualisiert das Task-Status und persistiert",
+          "description": "BoardDetail dispatcht <code>UPDATE_TASK_STATUS</code>. Der <strong>useBoardDetailReducer</strong> mappt über alle Tasks, setzt für die getroffene ID das neue <code>column</code> und ruft <code>saveBoard()</code> &rarr; <strong>localStorage</strong>. React rendert beide betroffenen Spalten neu.",
+          "nodes": ["boarddetail", "boarddetailreducer", "storage"],
+          "edges": [["boarddetail", "boarddetailreducer"]]
+        }
+      ]
+    },
+    "username-context": {
+      "title": "Username im TaskDialog verfügbar machen",
+      "steps": [
+        {
+          "title": "User setzt seinen Namen in Profile",
+          "description": "Auf <code>/profile</code> tippt der User in das Input-Feld. <strong>Profile</strong> hält den Wert lokal in <code>useState</code>, gelesen aus dem aktuellen Context.",
+          "nodes": ["profile"],
+          "edges": []
+        },
+        {
+          "title": "Speichern: Context + localStorage",
+          "description": "<code>handleSubmit</code> macht zweierlei: <code>context.setUserName(username)</code> aktualisiert den globalen State, <code>localStorage.setItem(\"kanban-user-name\", username)</code> persistiert ihn für den nächsten App-Start.",
+          "nodes": ["profile", "usernamecontext", "storage"],
+          "edges": [["profile", "usernamecontext"], ["profile", "storage"]]
+        },
+        {
+          "title": "Provider liefert den neuen Wert an alle Konsumenten",
+          "description": "<strong>UserNameProvider</strong> hält den State und gibt ihn als <code>value={{ userName, setUserName }}</code> an den <strong>UserNameContext.Provider</strong>. Alle Komponenten unter dem Provider re-rendern, sobald <code>userName</code> sich ändert.",
+          "nodes": ["usernameprovider", "usernamecontext"],
+          "edges": [["usernameprovider", "usernamecontext"]]
+        },
+        {
+          "title": "TaskDialog liest den Context",
+          "description": "Wird ein <strong>TaskDialog</strong> geöffnet (Create- oder Edit-Modus), liest er den aktuellen Namen mit <code>useContext(UserNameContext)</code> aus. Der Wert landet im <em>Zugewiesen an</em>-Select als zusätzliche Option &mdash; ohne dass die Komponente vom Profile-State direkt etwas weiss.",
+          "nodes": ["taskdialog", "usernamecontext"],
+          "edges": [["taskdialog", "usernamecontext"]]
+        }
+      ]
+    }
+  }
+}

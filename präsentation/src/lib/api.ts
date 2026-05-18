@@ -2,6 +2,11 @@ import type { Board } from "../types/board.type"
 
 const LOCAL_STORAGE_BOARDS_KEY = "boards"
 
+/**
+ * @arch-badge Persistenz
+ * @arch-subtitle localStorage-Adapter für Boards
+ * @arch-summary Liest, speichert und aktualisiert die Board-Sammlung im Browser-localStorage als JSON.
+ */
 export function getBoards(): Board[] {
   const boardsStringified = localStorage.getItem(LOCAL_STORAGE_BOARDS_KEY) ?? ""
   if (boardsStringified) {

@@ -1,6 +1,12 @@
 import { LayoutDashboard, UserCircle } from "lucide-react"
 import { Link } from "react-router-dom"
 
+/**
+ * @arch-badge Komponente
+ * @arch-subtitle Top-Navigation: Boards & Profil
+ * @arch-summary Statische Header-Leiste mit Links zur Board-Übersicht und zur Profil-Seite.
+ * @arch-step 5
+ */
 export default function Header() {
   return (
     <header className="bg-black py-5">

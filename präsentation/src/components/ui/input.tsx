@@ -2,6 +2,11 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * @arch-badge UI-Primitive
+ * @arch-subtitle shadcn Input-Feld
+ * @arch-summary Wrapped natives input mit Tailwind-Klassen, Focus-Ring und aria-invalid-Behandlung.
+ */
 function Input({ className, type, ...props }: React.ComponentProps<"input">) {
   return (
     <input

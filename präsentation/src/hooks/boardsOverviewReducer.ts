@@ -1,3 +1,4 @@
+/** @arch-step 8 */
 import type { Board } from "../types/board.type"
 import { saveBoards } from "../lib/api"
 
@@ -8,6 +9,12 @@ type BoardsOverviewAction = {
   data: Board
 }
 
+/**
+ * @arch-badge Reducer
+ * @arch-subtitle Pure (state, action) → state für Board-Liste
+ * @arch-summary Verwaltet ADD und DELETE auf der Board-Sammlung und persistiert nach localStorage.
+ * @arch-step 8
+ */
 export function useBoardOverviewReducer(
   prevState: BoardsOverviewState,
   action: BoardsOverviewAction

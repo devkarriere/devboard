@@ -42,6 +42,11 @@ const buttonVariants = cva(
   }
 )
 
+/**
+ * @arch-badge UI-Primitive
+ * @arch-subtitle shadcn Button mit cva-Varianten
+ * @arch-summary Wiederverwendbarer Button mit Variant- und Size-Optionen über class-variance-authority.
+ */
 function Button({
   className,
   variant = "default",

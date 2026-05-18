@@ -1,3 +1,4 @@
+/** @arch-step 9 */
 import { saveBoard } from "../lib/api"
 import type { Board, Task } from "../types/board.type"
 
@@ -15,6 +16,12 @@ type BoardDetailAction =
       data: { id: string; newColumn: "ToDo" | "Progress" | "Done" }
     }
 
+/**
+ * @arch-badge Reducer
+ * @arch-subtitle Pure (state, action) → state für Board-Tasks
+ * @arch-summary Verwaltet UPDATE_BOARD_NAME / ADD_TASK / DELETE_TASK / UPDATE_TASK / UPDATE_TASK_STATUS und persistiert nach localStorage.
+ * @arch-step 9
+ */
 export function useBoardDetailReducer(
   prevState: Board,
   action: BoardDetailAction

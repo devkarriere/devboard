@@ -3,6 +3,11 @@ import { Popover as PopoverPrimitive } from "radix-ui"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * @arch-badge UI-Primitive
+ * @arch-subtitle shadcn Popover (Radix-basiert)
+ * @arch-summary Floating-Overlay mit Trigger und Content; hier z. B. für den Calendar-Popover in TaskDialog verwendet.
+ */
 function Popover({
   ...props
 }: React.ComponentProps<typeof PopoverPrimitive.Root>) {

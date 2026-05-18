@@ -2,6 +2,11 @@ import * as React from "react"
 
 import { cn } from "@/lib/utils"
 
+/**
+ * @arch-badge UI-Primitive
+ * @arch-subtitle shadcn Card-Container mit Slot-Subkomponenten
+ * @arch-summary Rahmen-Komponente für Karten; wird mit CardHeader / CardTitle / CardContent / CardAction zusammengesetzt.
+ */
 function Card({
   className,
   size = "default",

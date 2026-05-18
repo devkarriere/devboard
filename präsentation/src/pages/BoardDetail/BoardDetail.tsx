@@ -10,6 +10,12 @@ import type { Task } from "../../types/board.type"
 import TaskDialog from "./components/TaskDialog"
 import { set } from "date-fns"
 
+/**
+ * @arch-badge Route /boards/:id
+ * @arch-subtitle Drei-Spalten-Board · Container
+ * @arch-summary Lädt das Board zur URL-ID, verwaltet Tasks via useReducer und verteilt sie auf die Spalten ToDo / Progress / Done.
+ * @arch-step 1
+ */
 export default function BoardDetail() {
   const { id } = useParams()
   const [isEditingBoardName, setIsEditingBoardName] = useState(false)

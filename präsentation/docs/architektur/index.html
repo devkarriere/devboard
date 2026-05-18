@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Nutzerverwaltung &middot; Architektur-Uebersicht</title>
+    <title>Kanban-Board &middot; Architektur-Übersicht</title>
     <link
       rel="icon"
       type="image/png"
@@ -20,17 +20,17 @@
           class="topbar-logo"
         />
         <div class="topbar-titles">
-          <h1>Nutzerverwaltung &mdash; Architektur-Karte</h1>
+          <h1>Kanban-Board &mdash; Architektur-Karte</h1>
           <p>
-            Interaktive Uebersicht &uuml;ber States, Reducer, Context, Router
-            &amp; Custom Hooks
+            Interaktive Übersicht &uuml;ber Routen, useReducer, Context,
+            Drag-and-Drop &amp; localStorage-Persistenz
           </p>
         </div>
       </div>
       <div class="topbar-actions">
         <button class="btn btn-secondary" id="btn-glossar">Glossar</button>
         <button class="btn btn-secondary" id="btn-reset-view">
-          Ansicht zuruecksetzen
+          Ansicht zurücksetzen
         </button>
       </div>
       <nav class="topbar-tabs">
@@ -48,32 +48,32 @@
             Karte zu erleben.
           </p>
           <div class="tour-list">
-            <button class="tour-card" data-tour="create">
+            <button class="tour-card" data-tour="create-board">
               <span class="tour-number">1</span>
               <div class="tour-info">
-                <strong>Nutzer erstellen</strong>
-                <span>Submit &rarr; Reducer &rarr; Context &rarr; UI</span>
+                <strong>Board erstellen</strong>
+                <span>Dialog &rarr; dispatch(ADD) &rarr; Reducer &rarr; localStorage</span>
               </div>
             </button>
-            <button class="tour-card" data-tour="edit">
+            <button class="tour-card" data-tour="open-board">
               <span class="tour-number">2</span>
               <div class="tour-info">
-                <strong>Nutzer bearbeiten</strong>
-                <span>URL-Param &rarr; Form vorgefuellt &rarr; Update</span>
+                <strong>Board öffnen</strong>
+                <span>Link &rarr; Router &rarr; useParams &rarr; Hydration</span>
               </div>
             </button>
-            <button class="tour-card" data-tour="delete">
+            <button class="tour-card" data-tour="drag-task">
               <span class="tour-number">3</span>
               <div class="tour-info">
-                <strong>Nutzer loeschen</strong>
-                <span>UserCard &rarr; Dispatch &rarr; Re-Render</span>
+                <strong>Task per Drag-and-Drop verschieben</strong>
+                <span>DataTransfer &rarr; onDrop &rarr; UPDATE_TASK_STATUS</span>
               </div>
             </button>
-            <button class="tour-card" data-tour="init">
+            <button class="tour-card" data-tour="username-context">
               <span class="tour-number">4</span>
               <div class="tour-info">
-                <strong>App-Start &amp; Hydration</strong>
-                <span>localStorage &rarr; Reducer &rarr; Context</span>
+                <strong>Username im TaskDialog</strong>
+                <span>Profile &rarr; Provider &rarr; Context &rarr; Dropdown</span>
               </div>
             </button>
           </div>
@@ -106,16 +106,12 @@
               <span>Komponente</span>
             </li>
             <li class="legend-item">
-              <span class="legend-dot dot-hook"></span>
-              <span>Custom Hook</span>
-            </li>
-            <li class="legend-item">
               <span class="legend-dot dot-type"></span>
               <span>Typ / Interface</span>
             </li>
             <li class="legend-item">
               <span class="legend-dot dot-external"></span>
-              <span>Browser-API</span>
+              <span>localStorage / Browser-API</span>
             </li>
           </ul>
 
@@ -259,7 +255,7 @@
             </div>
             <div class="tour-banner-controls">
               <button class="btn btn-ghost btn-small" id="tour-prev">
-                &larr; Zurueck
+                &larr; Zurück
               </button>
               <button class="btn btn-primary btn-small" id="tour-next">
                 Weiter &rarr;
@@ -275,14 +271,15 @@
             <div class="placeholder-icon">&#10149;</div>
             <h2>Willkommen zur Architektur-Karte</h2>
             <p>
-              Diese Anwendung ist eine kleine Nutzerverwaltung, die vier
-              wichtige React-Konzepte kombiniert: <strong>States</strong>,
-              <strong>Reducer</strong>, <strong>Context</strong> und
-              <strong>Router</strong>.
+              Diese Anwendung ist ein kleines Kanban-Board, das vier wichtige
+              React-Konzepte kombiniert: <strong>Router</strong>,
+              <strong>useReducer</strong>, <strong>Context</strong> und
+              <strong>HTML5-Drag-and-Drop</strong> &mdash; alles persistiert
+              im <strong>localStorage</strong>.
             </p>
             <p>
-              Klicke auf einen der farbigen Bloecke in der Karte, um eine
-              ausfuehrliche Erklaerung mit Code-Beispielen zu sehen. Oder starte
+              Klicke auf einen der farbigen Blöcke in der Karte, um eine
+              ausführliche Erklärung mit Code-Beispielen zu sehen. Oder starte
               eine der
               <strong>Szenario-Touren</strong> links, um den Datenfluss als
               animierte Sequenz zu erleben.
@@ -290,42 +287,52 @@
 
             <div class="quick-facts">
               <div class="fact">
-                <span class="fact-num">21</span>
+                <span class="fact-num">18</span>
                 <span class="fact-label">Bausteine</span>
               </div>
               <div class="fact">
-                <span class="fact-num">4</span>
+                <span class="fact-num">3</span>
                 <span class="fact-label">Routen</span>
               </div>
               <div class="fact">
-                <span class="fact-num">3</span>
+                <span class="fact-num">7</span>
                 <span class="fact-label">Reducer-Actions</span>
               </div>
               <div class="fact">
-                <span class="fact-num">7</span>
-                <span class="fact-label">useFormInput-Aufrufe</span>
+                <span class="fact-num">11</span>
+                <span class="fact-label">Lernschritte</span>
               </div>
             </div>
 
             <div class="big-picture">
               <h3>Das Big Picture</h3>
               <p>
-                <strong>App.tsx</strong> ist die Zentrale. Sie haelt den
-                globalen Zustand &uuml;ber <strong>useReducer</strong>, gibt ihn
-                &uuml;ber <strong>UserContext</strong> an alle Kinder weiter und
-                rendert gleichzeitig den <strong>Router</strong> &mdash; damit
-                die einzelnen Views (Overview, Create, Edit) sowohl auf den
-                State zugreifen als auch per URL aufgerufen werden koennen.
+                <strong>App.tsx</strong> ist die Routing-Zentrale. Sie definiert
+                drei Routen unter einem gemeinsamen <strong>Layout</strong>:
+                <em>/profile</em>, <em>/boards</em> und <em>/boards/:id</em>.
+                Der <strong>UserNameProvider</strong> umhüllt den Router, damit
+                der gespeicherte Benutzername in jeder Route &mdash; besonders
+                im <strong>TaskDialog</strong> &mdash; per
+                <strong>useContext</strong> verfügbar ist.
               </p>
               <p>
-                Ein besonderes Detail ist der Custom Hook
-                <strong>useFormInput</strong>: Er wird in
-                <strong>UserForm</strong> sieben Mal aufgerufen &mdash; und doch
-                hat jedes Eingabefeld einen eigenen isolierten State. Das
-                funktioniert, weil React jeden Hook-Aufruf intern als eigenen
-                State-Slot speichert. Klicke auf den gruenen
-                <em>useFormInput</em>-Knoten in der Karte, um genau zu
-                verstehen, warum.
+                Jede der beiden Daten-Seiten hält ihren eigenen State über
+                <strong>useReducer</strong>: <em>BoardOverview</em> verwaltet
+                die Board-Liste (ADD, DELETE), <em>BoardDetail</em> verwaltet
+                die Tasks (UPDATE_BOARD_NAME, ADD_TASK, DELETE_TASK,
+                UPDATE_TASK, UPDATE_TASK_STATUS). Jede Reducer-Änderung
+                schreibt sofort in den <strong>localStorage</strong>, beim
+                Mount wird der State über <em>getBoards</em> /
+                <em>getBoardById</em> wiederhergestellt.
+              </p>
+              <p>
+                Das spannendste Detail ist die <strong>Drag-and-Drop-API</strong>:
+                <em>TaskCard</em> setzt beim <code>onDragStart</code> die
+                Spalten- und Task-ID in <code>dataTransfer</code>; jede
+                <em>BoardColumn</em> liest sie im <code>onDrop</code> und
+                dispatcht <em>UPDATE_TASK_STATUS</em>. Klicke auf den
+                <em>boardcolumn</em>-Knoten in der Karte, um den Drop-Handler
+                im Detail zu sehen.
               </p>
             </div>
           </div>
@@ -344,7 +351,7 @@
       >
         <header class="modal-header">
           <h2 id="glossar-title">
-            Glossar &mdash; Begriffe fuer Quereinsteiger
+            Glossar &mdash; Begriffe für Quereinsteiger
           </h2>
           <button class="modal-close" data-close-modal aria-label="Schliessen">
             &times;

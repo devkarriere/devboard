@@ -9,6 +9,12 @@ import {
 import { Button } from "../../../components/ui/button"
 import type { Task } from "../../../types/board.type"
 
+/**
+ * @arch-badge Komponente
+ * @arch-subtitle Draggable Task-Kachel
+ * @arch-summary Zeigt Titel, Beschreibung, Zuweisung und Deadline einer Task; Click öffnet den Edit-Dialog, Drag startet den Spaltenwechsel.
+ * @arch-step 3
+ */
 export default function TaskCard({
   task,
   onDeleteTask,

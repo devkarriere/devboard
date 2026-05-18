@@ -10,6 +10,12 @@ import {
 import { Link } from "react-router-dom"
 import type { Board } from "../../../types/board.type"
 
+/**
+ * @arch-badge Komponente
+ * @arch-subtitle Vorschau-Kachel eines Boards
+ * @arch-summary Zeigt Board-Titel & Task-Anzahl, verlinkt auf die Detail-Route und stellt einen Lösch-Button bereit.
+ * @arch-step 2
+ */
 export default function BoardCard({
   board,
   onDelete,
