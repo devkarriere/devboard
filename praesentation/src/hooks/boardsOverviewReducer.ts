@@ -1,13 +1,17 @@
 /** @arch-step 8 */
 import type { Board } from "../types/board.type"
-import { saveBoards } from "../lib/api"
 
 type BoardsOverviewState = Board[]
 
-type BoardsOverviewAction = {
-  type: "ADD" | "DELETE"
-  data: Board
-}
+type BoardsOverviewAction =
+  | {
+      type: "ADD" | "DELETE"
+      data: Board
+    }
+  | {
+      type: "SET"
+      data: Board[]
+    }
 
 /**
  * @arch-badge Reducer
@@ -30,10 +34,13 @@ export function useBoardOverviewReducer(
       newState = prevState.filter((board) => board.id !== action.data.id)
       break
     }
+    case "SET": {
+      newState = action.data
+      break
+    }
 
     default:
       break
   }
-  saveBoards(newState)
   return newState
 }

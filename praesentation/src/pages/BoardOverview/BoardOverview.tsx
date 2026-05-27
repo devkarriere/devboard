@@ -1,4 +1,4 @@
-import { useReducer, useState } from "react"
+import { useEffect, useReducer, useState } from "react"
 import { Button } from "../../components/ui/button"
 import BoardCard from "./components/BoardCard"
 import { Plus } from "lucide-react"
@@ -14,7 +14,7 @@ import {
 } from "../../components/ui/dialog"
 import { Input } from "../../components/ui/input"
 import { useBoardOverviewReducer } from "../../hooks/boardsOverviewReducer"
-import { getBoards } from "../../lib/api"
+import { deleteBoard, getBoards, insertBoard } from "../../lib/api"
 import type { Board } from "../../types/board.type"
 
 /**
@@ -24,27 +24,44 @@ import type { Board } from "../../types/board.type"
  * @arch-step 1
  */
 export default function BoardOverview() {
-  const [boards, boardsDispatch] = useReducer(
-    useBoardOverviewReducer,
-    [],
-    getBoards
-  )
+  const [boards, boardsDispatch] = useReducer(useBoardOverviewReducer, [])
 
   const [boardNameInput, setBoardNameInput] = useState("Neues Board")
 
-  function handleAddNewBoard() {
+  async function fetchBoards() {
+    const boards = await getBoards()
+    boardsDispatch({ type: "SET", data: boards })
+  }
+
+  useEffect(() => {
+    fetchBoards()
+  }, [])
+
+  async function handleAddNewBoard() {
     const newBoard: Board = {
-      id: String(Math.random()),
+      id: "",
       title: boardNameInput,
+      created_at: new Date().toISOString(),
       tasks: [],
     }
 
-    boardsDispatch({ type: "ADD", data: newBoard })
-    setBoardNameInput("")
+    const insertedBoard = await insertBoard(newBoard)
+    if (insertedBoard) {
+      boardsDispatch({ type: "ADD", data: insertedBoard })
+      setBoardNameInput("")
+    }
   }
 
-  function handleDeleteBoard(id: string) {
-    boardsDispatch({ type: "DELETE", data: { id: id, title: "", tasks: [] } })
+  async function handleDeleteBoard(id: string) {
+    try {
+      await deleteBoard(id)
+      boardsDispatch({
+        type: "DELETE",
+        data: { id: id, title: "", tasks: [], created_at: "" },
+      })
+    } catch (error) {
+      console.error("Error deleting board:", error)
+    }
   }
 
   return (

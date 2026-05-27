@@ -23,6 +23,7 @@ export default function BoardCard({
   board: Board
   onDelete: (id: string) => void
 }) {
+  console.log("Rendering BoardCard for board:", board)
   return (
     <Link to={`/boards/${board.id}`}>
       <Card className="transition-shadow hover:shadow-md">
