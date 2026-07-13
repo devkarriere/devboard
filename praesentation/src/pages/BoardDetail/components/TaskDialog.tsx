@@ -24,11 +24,12 @@ import {
   SelectValue,
 } from "../../../components/ui/select"
 import { ChevronDownIcon } from "lucide-react"
-import type { Task } from "../../../types/board.type"
+import type { CreateTask, Task } from "../../../types/board.type"
 import { Button } from "../../../components/ui/button"
-import { useContext, useState } from "react"
+import { useEffect, useState } from "react"
 import { Textarea } from "../../../components/ui/textarea"
-import { UserNameContext } from "../../../context/UserNameContext"
+import type { Profile } from "../../../types/profile.type"
+import { getProfiles } from "../../../lib/api"
 
 /**
  * @arch-badge Komponente
@@ -46,32 +47,41 @@ export default function TaskDialog({
 }: {
   open: boolean
   handleOpenChange: (open: boolean) => void
-  onSubmitUpdate: (task: Task) => void
+  onSubmitUpdate: (task: CreateTask) => void
   title: string
   description: string
   task: Task
 }) {
-  const context = useContext(UserNameContext)
   const [taskTitle, setTaskTitle] = useState<string>(task.title)
 
   const [taskDescription, setTaskDescription] = useState<string>(
     task.description ?? ""
   )
   const [selectedPerson, setSelectedPerson] = useState<string>(
-    task.assignedTo ?? " "
+    task.assignedTo?.id ?? " "
   )
   const [date, setDate] = useState<Date | undefined>(
     task.deadline ? new Date(task.deadline) : undefined
   )
 
+  const [profiles, setProfiles] = useState<Profile[]>([])
+
+  useEffect(() => {
+    async function fetchProfiles() {
+      const fetchedProfiles = await getProfiles()
+      setProfiles(fetchedProfiles)
+    }
+    fetchProfiles()
+  }, [])
+
   function handleSubmitUpdate() {
-    const updatedTask: Task = {
-      id: task.id,
+    const updatedTask: CreateTask = {
       title: taskTitle,
       description: taskDescription,
-      deadline: date?.toISOString(),
-      assignedTo: selectedPerson,
+      deadline: date?.toISOString() ?? null,
+      assignedTo: selectedPerson === " " ? null : selectedPerson,
       column: task.column,
+      boardId: task.boardId ?? "",
     }
 
     onSubmitUpdate(updatedTask)
@@ -107,9 +117,13 @@ export default function TaskDialog({
             <SelectContent>
               <SelectGroup>
                 <SelectItem value=" ">Keine Zuweisung</SelectItem>
-                <SelectItem value={context?.userName ?? "undefined"}>
-                  {context?.userName ?? "undefined"}
-                </SelectItem>
+                {profiles.map((profile) => {
+                  return (
+                    <SelectItem value={profile.id}>
+                      {profile.username}
+                    </SelectItem>
+                  )
+                })}
               </SelectGroup>
             </SelectContent>
           </Select>

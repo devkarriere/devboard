@@ -1,7 +1,7 @@
 import { Plus } from "lucide-react"
 import { Button } from "../../../components/ui/button"
 import TaskCard from "./TaskCard"
-import type { Task } from "../../../types/board.type"
+import type { CreateTask, Task } from "../../../types/board.type"
 import { useState } from "react"
 import TaskDialog from "./TaskDialog"
 
@@ -21,7 +21,7 @@ export default function BoardColumn({
 }: {
   title: "ToDo" | "Progress" | "Done"
   tasks: Task[]
-  onAddTask: (task: Task) => void
+  onAddTask: (task: CreateTask) => void
   onDeleteTask: (task: Task) => void
   onUpdateTaskStatus: (
     id: string,
@@ -114,7 +114,10 @@ export default function BoardColumn({
             title: "",
             description: "",
             column: title,
-            deadline: "",
+            deadline: null,
+            assignedTo: null,
+            boardId: "",
+            created_at: new Date().toString(),
           }}
         />
       </div>

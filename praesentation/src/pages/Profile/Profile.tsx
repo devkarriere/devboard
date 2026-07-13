@@ -9,6 +9,7 @@ import {
 } from "../../components/ui/card"
 import { Input } from "../../components/ui/input"
 import { UserNameContext } from "../../context/UserNameContext"
+import { updateProfile } from "../../lib/api"
 
 /**
  * @arch-badge Route /profile
@@ -19,9 +20,16 @@ import { UserNameContext } from "../../context/UserNameContext"
 export default function Profile() {
   const context = useContext(UserNameContext)
   const [username, setUsername] = useState(context?.userName ?? "")
-  function handleSubmit() {
-    context?.setUserName(username)
-    localStorage.setItem("kanban-user-name", username)
+  async function handleSubmit() {
+    try {
+      const updatedUsername = await updateProfile(
+        context?.userId ?? "",
+        username
+      )
+      context?.setUserName(updatedUsername?.username ?? "")
+    } catch (error) {
+      console.error("Error updating username:", error)
+    }
   }
 
   return (

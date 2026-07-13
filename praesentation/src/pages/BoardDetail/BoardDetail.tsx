@@ -1,14 +1,19 @@
 import { ArrowLeft, Check, Pencil, X } from "lucide-react"
 import { Button } from "../../components/ui/button"
 import { Link, useParams } from "react-router-dom"
-import { useReducer, useState } from "react"
+import { useEffect, useReducer, useState } from "react"
 import { Input } from "../../components/ui/input"
 import BoardColumn from "./components/BoardColumn"
-import { getBoardById } from "../../lib/api"
+import {
+  deleteTask,
+  getBoardById,
+  insertTask,
+  updateBoard,
+  updateTask,
+} from "../../lib/api"
 import { useBoardDetailReducer } from "../../hooks/boardDetailReducer"
-import type { Task } from "../../types/board.type"
+import type { CreateTask, Task, UpdateTask } from "../../types/board.type"
 import TaskDialog from "./components/TaskDialog"
-import { set } from "date-fns"
 
 /**
  * @arch-badge Route /boards/:id
@@ -20,33 +25,57 @@ export default function BoardDetail() {
   const { id } = useParams()
   const [isEditingBoardName, setIsEditingBoardName] = useState(false)
   const [boardName, setBoardName] = useState("")
-  const boardFromLocalStorage = getBoardById(id ?? "") ?? {
-    id: "",
-    title: "",
-    tasks: [],
+  const [board, dispatchBoard] = useReducer(useBoardDetailReducer, undefined)
+  async function fetchBoard() {
+    const board = await getBoardById(id ?? "")
+    dispatchBoard({ type: "SET_BOARD", data: board })
   }
+
+  useEffect(() => {
+    fetchBoard()
+  }, [])
 
   const [isEditTaskDialogOpen, setIsEditTaskDialogOpen] = useState(false)
   const [editTask, setEditTask] = useState<Task | undefined>()
 
-  const [board, dispatchBoard] = useReducer(
-    useBoardDetailReducer,
-    boardFromLocalStorage
-  )
-
-  function handleAddTask(task: Task) {
-    dispatchBoard({ type: "ADD_TASK", data: task })
+  if (!board) {
+    return <div>Loading...</div>
   }
 
-  function handleDeleteTask(task: Task) {
-    dispatchBoard({ type: "DELETE_TASK", data: task })
+  async function handleAddTask(task: CreateTask) {
+    try {
+      const insertedTask = await insertTask({
+        ...task,
+        boardId: board?.id ?? "",
+      })
+      if (insertedTask) {
+        dispatchBoard({ type: "ADD_TASK", data: insertedTask })
+      }
+    } catch (error: unknown) {
+      console.error("Error adding task:", error)
+      // Send Toast if info that we could not add task
+    }
   }
 
-  function handleUpdateTaskStatus(
+  async function handleDeleteTask(task: Task) {
+    try {
+      await deleteTask(task.id)
+      dispatchBoard({ type: "DELETE_TASK", data: task })
+    } catch (error: unknown) {
+      console.error("Error deleting task:", error)
+    }
+  }
+
+  async function handleUpdateTaskStatus(
     id: string,
     newColumn: "ToDo" | "Progress" | "Done"
   ) {
-    dispatchBoard({ type: "UPDATE_TASK_STATUS", data: { id, newColumn } })
+    try {
+      await updateTask(id, { column: newColumn })
+      dispatchBoard({ type: "UPDATE_TASK_STATUS", data: { id, newColumn } })
+    } catch (error: unknown) {
+      console.error("Error updating task status:", error)
+    }
   }
 
   function handleEditTask(task: Task) {
@@ -55,18 +84,32 @@ export default function BoardDetail() {
     setIsEditTaskDialogOpen(true)
   }
 
-  function handleUpdateTask(task: Task) {
-    dispatchBoard({ type: "UPDATE_TASK", data: task })
+  async function handleUpdateTask(task: UpdateTask) {
+    try {
+      const updatedTask = await updateTask(editTask?.id ?? "", task)
+      if (updatedTask) {
+        fetchBoard()
+        // dispatchBoard({ type: "UPDATE_TASK", data: updatedTask })
+      }
+    } catch (error: unknown) {
+      console.error("Error updating task:", error)
+    }
   }
 
   function handleEditBoardTitle() {
     setIsEditingBoardName(true)
-    setBoardName(board.title)
+    setBoardName(board?.title ?? "")
   }
 
-  function handleSubmitEditBoardTitle() {
-    dispatchBoard({ type: "UPDATE_BOARD_NAME", data: boardName })
-    setIsEditingBoardName(false)
+  async function handleSubmitEditBoardTitle() {
+    if (!board) return
+
+    const updatedBoard = await updateBoard(board.id, { title: boardName })
+
+    if (updatedBoard) {
+      dispatchBoard({ type: "UPDATE_BOARD_NAME", data: boardName })
+      setIsEditingBoardName(false)
+    }
   }
 
   function renderBoardDetailHeader() {
@@ -97,7 +140,7 @@ export default function BoardDetail() {
     } else {
       return (
         <>
-          <h1 className="text-2xl font-bold">{board.title}</h1>
+          <h1 className="text-2xl font-bold">{board?.title ?? ""}</h1>
           <Button variant="ghost" size="icon-xl" onClick={handleEditBoardTitle}>
             <Pencil className="size-4" />
           </Button>
@@ -124,7 +167,16 @@ export default function BoardDetail() {
         title="Task bearbeiten"
         description="Bearbeite die ausgewählte Aufgabe."
         task={
-          editTask ?? { id: "", title: "abc", description: "", column: "ToDo" }
+          editTask ?? {
+            id: "",
+            title: "abc",
+            description: "",
+            column: "ToDo",
+            assignedTo: null,
+            deadline: null,
+            boardId: board.id ?? "",
+            created_at: new Date().toString(),
+          }
         }
       />
       <div className="mt-8 grid grid-cols-3 gap-4">

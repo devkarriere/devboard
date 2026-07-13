@@ -1,5 +1,6 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { UserNameContext } from "./UserNameContext"
+import { getProfileById } from "../lib/api"
 
 /**
  * @arch-badge Provider
@@ -12,16 +13,30 @@ export default function UserNameProvider({
 }: {
   children: React.ReactNode
 }) {
-  const [userName, setUserName] = useState(getUserNameFromLocalStorage)
+  const [userName, setUserName] = useState("")
+  const [userId, setUserId] = useState("467ea8de-9293-4beb-9ba2-4d5f5a6162d9")
 
-  function getUserNameFromLocalStorage() {
-    const storedName = localStorage.getItem("kanban-user-name")
-    return storedName ?? ""
-  }
+  useEffect(() => {
+    async function loadUserName() {
+      const userProfile = await getProfileById(userId)
+      if (userProfile) {
+        setUserName(userProfile.username)
+      } else {
+        setUserName("empty")
+      }
+    }
+
+    loadUserName()
+  }, [userId])
 
   return (
     <UserNameContext.Provider
-      value={{ userName: userName, setUserName: setUserName }}
+      value={{
+        userName: userName,
+        setUserName: setUserName,
+        userId: userId,
+        setUserId: setUserId,
+      }}
     >
       {children}
     </UserNameContext.Provider>

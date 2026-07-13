@@ -1,4 +1,11 @@
-import type { Board } from "../types/board.type"
+import type {
+  Board,
+  CreateTask,
+  Task,
+  UpdateBoard,
+  UpdateTask,
+} from "../types/board.type"
+import type { Profile } from "../types/profile.type"
 import supabase from "./db"
 
 const LOCAL_STORAGE_BOARDS_KEY = "boards"
@@ -16,7 +23,7 @@ export async function getBoards(): Promise<Board[]> {
     console.error("Error fetching boards:", error)
     return []
   }
-  return boards
+  return boards as Board[]
 }
 
 export function getBoardsFromLocalstorage(): Board[] {
@@ -28,9 +35,21 @@ export function getBoardsFromLocalstorage(): Board[] {
   return []
 }
 
-export function getBoardById(id: string): Board | undefined {
-  const boards = getBoards()
-  return boards.find((board) => board.id === id)
+export async function getBoardById(id: string): Promise<Board | undefined> {
+  const { data: board, error } = await supabase
+    .from("boards")
+    .select("*, tasks(assignedTo:profiles(username, id), *)")
+    .eq("id", id)
+    .single()
+
+  if (error) {
+    console.error("Error fetching board by id:", error)
+    return undefined
+  }
+
+  console.log("Fetched board:", board)
+
+  return board as Board
 }
 
 export function saveBoards(boards: Board[]): void {
@@ -68,6 +87,112 @@ export async function insertBoard(board: Board): Promise<Board | null> {
   if (error) {
     console.error("Error inserting board:", error)
     return null
+  }
+
+  return data as Board
+}
+
+export async function updateBoard(
+  id: string,
+  board: UpdateBoard
+): Promise<Board | null> {
+  const { data, error } = await supabase
+    .from("boards")
+    .update(board)
+    .eq("id", id)
+    .select("*, tasks(*)")
+    .single()
+
+  if (error) {
+    console.error("Error updating board:", error)
+    return null
+  }
+
+  return data as Board
+}
+
+export async function insertTask(task: CreateTask): Promise<Task | null> {
+  const { data, error } = await supabase
+    .from("tasks")
+    .insert(task)
+    .select("*")
+    .single()
+
+  if (error) {
+    console.error("Error inserting task:", error)
+    throw error
+  }
+
+  return data as Task
+}
+
+export async function updateTask(
+  id: string,
+  task: UpdateTask
+): Promise<Task | null> {
+  const { data, error } = await supabase
+    .from("tasks")
+    .update(task)
+    .eq("id", id)
+    .select("*")
+    .single()
+
+  if (error) {
+    console.error("Error updating task:", error)
+    throw error
+  }
+
+  return data as Task
+}
+
+export async function deleteTask(id: string): Promise<void> {
+  const { error } = await supabase.from("tasks").delete().eq("id", id)
+  if (error) {
+    console.error("Error deleting task:", error)
+    throw error
+  }
+}
+
+export async function getProfileById(id: string): Promise<Profile | null> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("*")
+    .eq("id", id)
+    .single()
+
+  if (error) {
+    console.error("Error fetching profile by id:", error)
+    return null
+  }
+
+  return data
+}
+
+export async function getProfiles(): Promise<Profile[]> {
+  const { data, error } = await supabase.from("profiles").select("*")
+
+  if (error) {
+    console.error("Error fetching profiles: ", error)
+    return []
+  }
+
+  return data
+}
+
+export async function updateProfile(
+  id: string,
+  username: string
+): Promise<Profile | null> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .update({ username: username })
+    .eq("id", id)
+    .select("*")
+    .single()
+
+  if (error) {
+    console.error("Error updating profile:", error)
+    throw error
   }
 
   return data

@@ -4,6 +4,8 @@ import { createContext } from "react"
 type UserNameContextType = {
   userName: string
   setUserName: (name: string) => void
+  userId: string
+  setUserId: (id: string) => void
 }
 
 /**

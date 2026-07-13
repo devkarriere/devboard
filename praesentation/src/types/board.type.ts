@@ -12,15 +12,26 @@ export interface BoardLocalstorage {
   tasks: Task[]
 }
 
+export type UpdateBoard = Database["public"]["Tables"]["boards"]["Update"]
+
 export type Board = Database["public"]["Tables"]["boards"]["Row"] & {
-  tasks: Database["public"]["Tables"]["tasks"]["Row"][]
+  tasks: Task[]
 }
 
-export interface Task {
-  id: string
-  title: string
+export type Task = Database["public"]["Tables"]["tasks"]["Row"] & {
   column: "ToDo" | "Progress" | "Done"
-  assignedTo?: string
-  description?: string
-  deadline?: string
+  assignedTo?: { username: string; id: string } | null
 }
+
+export type UpdateTask = Database["public"]["Tables"]["tasks"]["Update"]
+
+export type CreateTask = Database["public"]["Tables"]["tasks"]["Insert"]
+
+// export interface Task {
+//   id: string
+//   title: string
+//   column: "ToDo" | "Progress" | "Done"
+//   assignedTo?: string
+//   description?: string
+//   deadline?: string
+// }

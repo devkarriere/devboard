@@ -57,6 +57,24 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          created_at: string
+          id: string
+          username: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          username: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          username?: string
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           assignedTo: string | null
@@ -71,7 +89,7 @@ export type Database = {
         Insert: {
           assignedTo?: string | null
           boardId?: string
-          column: string
+          column?: string
           created_at?: string
           deadline?: string | null
           description?: string | null
@@ -89,6 +107,13 @@ export type Database = {
           title?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "tasks_assignedTo_fkey"
+            columns: ["assignedTo"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "tasks_boardId_fkey"
             columns: ["boardId"]

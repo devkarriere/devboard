@@ -42,7 +42,7 @@ export default function TaskCard({
           {task.assignedTo && (
             <span className="flex items-center gap-1">
               <CircleUser className="size-3" />
-              {task.assignedTo}
+              {task.assignedTo.username}
             </span>
           )}
           {task.deadline && (
